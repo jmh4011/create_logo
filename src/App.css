@@ -1,0 +1,16 @@
+.container {
+  display: flex;
+  height: 100vh;
+}
+
+.SideBarBody {
+  flex: 2; 
+  background-color: aqua; 
+  padding: 20px;
+}
+
+.canvasBody {
+  flex: 8; 
+  background-color: red; 
+  padding: 20px;
+}

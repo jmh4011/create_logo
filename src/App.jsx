@@ -1,13 +1,15 @@
-import { useState } from 'react'
-import './App.css'
-import sideBar from './Components/sideBar/sideBar'
+import { useState } from "react";
+import "./App.css";
+import SideBar from './Components/SideBar/SideBar';
+import Canvas from "./Components/Canvas/Canvas";
 
 function App() {
   return (
-    <>
-      <sideBar />
-    </>
-  )
+    <div className="container">
+      <SideBar />
+      <Canvas />
+    </div>
+  );
 }
 
-export default App
+export default App;
