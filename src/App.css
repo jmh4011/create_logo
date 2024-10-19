@@ -1,3 +1,11 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .container {
   display: flex;
   height: 100vh;
@@ -9,8 +17,21 @@
   padding: 20px;
 }
 
-.canvasBody {
+.MainPageBody {
   flex: 8; 
   background-color: red; 
+  display: flex;
+  padding: 20px;
+  flex-direction: column;
+}
+
+.upper-section {
+  flex: 9; 
+  padding: 20px;
+}
+
+.lower-section {
+  flex: 1; 
+  background-color: green;
   padding: 20px;
 }

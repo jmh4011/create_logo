@@ -1,9 +1,9 @@
 import React from 'react'
 
-const editNavigator = () => {
+const EditNavigator = () => {
   return (
     <div>editNavigator</div>
   )
 }
 
-export default editNavigator
+export default EditNavigator

@@ -1,13 +1,13 @@
 import { useState } from "react";
 import "./App.css";
 import SideBar from './Components/SideBar/SideBar';
-import Canvas from "./Components/Canvas/Canvas";
+import MainPage from "./Components/MainPage/MainPage";
 
 function App() {
   return (
     <div className="container">
       <SideBar />
-      <Canvas />
+      <MainPage />
     </div>
   );
 }
