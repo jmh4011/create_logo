@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100%;
@@ -12,26 +13,26 @@ html, body {
 }
 
 .SideBarBody {
-  flex: 2; 
-  background-color: aqua; 
+  flex: 2;
+  border: 1px solid aqua;
   padding: 20px;
 }
 
 .MainPageBody {
-  flex: 8; 
-  background-color: red; 
+  flex: 8;
+  border: 1px solid red;
   display: flex;
   padding: 20px;
   flex-direction: column;
 }
 
 .upper-section {
-  flex: 9; 
+  flex: 9;
   padding: 20px;
 }
 
 .lower-section {
-  flex: 1; 
-  background-color: green;
+  flex: 1;
+  border: 1px solid green;
   padding: 20px;
 }
