@@ -2,17 +2,13 @@ import React, { useRef, useState, useEffect } from "react";
 import useRectangle from "./useRectangle";
 import useCircle from "./useCircle";
 import useLine from "./useLine";
-
 const Canvas = () => {
   const canvasRef = useRef(null);
   const rectangle = useRectangle();
   const circle = useCircle();
   const line = useLine();
   const [idCount, setIdCount] = useState(1);
-  const [mode, setMode] = useState("rectangle"); // 'rectangle' | 'circle' | 'line' | 'move' 모드를 설정
   const [dragStart, setDragStart] = useState(null);
-  const [canvasObjects, setCanvasObjects] = useState({});
-  const [canvasObjectIds, setCanvasObjectIds] = useState([]);
   const [draggingObject, setDraggingObject] = useState(null);
   const [selectedRectId, setSelectedRectId] = useState();
   const [point, setPoint] = useState({ x: 0, y: 0 });

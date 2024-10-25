@@ -14,13 +14,11 @@ body {
 
 .SideBarBody {
   flex: 2;
-  border: 1px solid aqua;
   padding: 20px;
 }
 
 .MainPageBody {
   flex: 8;
-  border: 1px solid red;
   display: flex;
   padding: 20px;
   flex-direction: column;
