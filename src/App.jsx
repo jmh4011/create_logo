@@ -1,17 +1,23 @@
 import { useState } from "react";
 import "./App.css";
-import SideBar from './Components/SideBar/SideBar';
+import SideBar from "./Components/SideBar/SideBar";
 import MainPage from "./Components/MainPage/MainPage";
 
 function App() {
-
-  const [mode, setMode] = useState("rectangle"); // 'rectangle' | 'circle' | 'line' | 'move' 모드를 설정
+  const [mode, setMode] = useState("rectangle"); // 'rectangle' | 'circle' | 'line' | 'testBox' |'move' 모드를 설정
   const [canvasObjects, setCanvasObjects] = useState({});
   const [canvasObjectIds, setCanvasObjectIds] = useState([]);
   return (
     <div className="container">
       <SideBar />
-      <MainPage />
+      <MainPage
+        mode={mode}
+        setMode={setMode}
+        canvasObjects={canvasObjects}
+        canvasObjectIds={canvasObjectIds}
+        setCanvasObjects={setCanvasObjects}
+        setCanvasObjectIds={setCanvasObjectIds}
+      />
     </div>
   );
 }

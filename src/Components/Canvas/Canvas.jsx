@@ -1,21 +1,35 @@
-import React, { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 import useRectangle from "./useRectangle";
 import useCircle from "./useCircle";
 import useLine from "./useLine";
-const Canvas = () => {
+import useTextBox from "./useTextBox";
+
+const Canvas = ({
+  mode,
+  canvasObjects,
+  canvasObjectIds,
+  setCanvasObjects,
+  setCanvasObjectIds,
+}) => {
   const canvasRef = useRef(null);
   const rectangle = useRectangle();
   const circle = useCircle();
   const line = useLine();
+  const textBox = useTextBox();
   const [idCount, setIdCount] = useState(1);
   const [dragStart, setDragStart] = useState(null);
   const [draggingObject, setDraggingObject] = useState(null);
   const [selectedRectId, setSelectedRectId] = useState();
   const [point, setPoint] = useState({ x: 0, y: 0 });
+  const [selectedTextBoxId, setSelectedTextBoxId] = useState(null);
+  const [inputText, setInputText] = useState("");
+  const [inputPosition, setInputPosition] = useState({ x: 0, y: 0 });
 
-  // 추가된 히스토리 관리
-  const [history, setHistory] = useState([]); // 이전 상태들을 저장하는 배열
-  const [redoHistory, setRedoHistory] = useState([]); // redo를 위한 히스토리
+  const [isMouseDown, setIsMouseDown] = useState(false);
+  const [selectedObjectId, setSelectedObjectId] = useState(null);
+
+  const [history, setHistory] = useState([]);
+  const [redoHistory, setRedoHistory] = useState([]);
 
   const draw = (context, canvasObject, isSelected = false) => {
     switch (canvasObject.type) {
@@ -27,6 +41,9 @@ const Canvas = () => {
         break;
       case "line":
         line.draw(context, canvasObject, isSelected);
+        break;
+      case "textBox":
+        textBox.draw(context, canvasObject, isSelected);
         break;
       default:
         console.error("Unknown type:", canvasObject.type);
@@ -41,6 +58,8 @@ const Canvas = () => {
         return circle.isClicked(canvasObject, x, y);
       case "line":
         return line.isClicked(canvasObject, x, y);
+      case "textBox":
+        return textBox.isClicked(canvasObject, x, y);
       default:
         console.error("Unknown type:", canvasObject.type);
         return false;
@@ -55,13 +74,14 @@ const Canvas = () => {
         return circle.create(id, startX, startY, endX, endY);
       case "line":
         return line.create(id, startX, startY, endX, endY);
+      case "textBox":
+        return textBox.create(id, startX, startY, endX, endY);
       default:
         console.error("Unknown type:", mode);
         return null;
     }
   };
 
-  // 히스토리에 현재 상태 추가
   const addHistory = () => {
     setRedoHistory([]);
     setHistory((prev) => [
@@ -95,11 +115,21 @@ const Canvas = () => {
     if (mode === "move") {
       canvasObjectIds.forEach((id) => {
         if (isClicked(canvasObjects[id], x, y)) {
-          setSelectedRectId(id);
-          setPoint({
-            x: x - canvasObjects[id].positionX,
-            y: y - canvasObjects[id].positionY,
-          });
+          if (canvasObjects[id].type === "textBox") {
+            setSelectedTextBoxId(id);
+            setInputText(canvasObjects[id].text); // 선택된 텍스트 박스의 텍스트 설정
+            setInputPosition({
+              x: canvasObjects[id].positionX,
+              y: canvasObjects[id].positionY,
+            });
+            console.log(selectedTextBoxId, inputText, inputPosition);
+          } else {
+            setSelectedRectId(id);
+            setPoint({
+              x: x - canvasObjects[id].positionX,
+              y: y - canvasObjects[id].positionY,
+            });
+          }
         }
       });
     } else {
@@ -107,10 +137,28 @@ const Canvas = () => {
     }
   };
 
+  const updateText = () => {
+    if (selectedTextBoxId) {
+      setCanvasObjects((prev) => ({
+        ...prev,
+        [selectedTextBoxId]: { ...prev[selectedTextBoxId], text: inputText },
+      }));
+      setSelectedTextBoxId(null); // 텍스트 변경 후 선택 해제
+      setInputText(""); // 입력 필드 초기화
+    }
+  };
+
   const handleMouseMove = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    context.strokeStyle = "blue";
+    context.lineWidth = 2;
+
+    context.strokeRect(dragStart.x, dragStart.y, x, y);
 
     if (mode !== "move" && dragStart) {
       const createdObject = createObject(null, dragStart.x, dragStart.y, x, y);
@@ -156,7 +204,6 @@ const Canvas = () => {
     setSelectedRectId(null);
   };
 
-  // Ctrl+Z 기능 구현
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.ctrlKey && e.key === "z") {
@@ -165,17 +212,14 @@ const Canvas = () => {
           setCanvasObjects(prevState.objects);
           setCanvasObjectIds(prevState.ids);
 
-          // redo 히스토리에 현재 상태 저장
           setRedoHistory((prev) => [
             ...prev,
             { objects: { ...canvasObjects }, ids: [...canvasObjectIds] },
           ]);
 
-          // 히스토리에서 마지막 상태 제거
           setHistory((prev) => prev.slice(0, -1));
         }
       }
-      // Ctrl+Y 기능으로 되돌리기 (redo)
       if (e.ctrlKey && e.key === "y") {
         if (redoHistory.length > 0) {
           const nextState = redoHistory[redoHistory.length - 1];
@@ -202,16 +246,23 @@ const Canvas = () => {
   }, [canvasObjects, canvasObjectIds, history, redoHistory]);
 
   return (
-    <div>
-      <div>
-        <button onClick={() => setMode("rectangle")}>Rectangle</button>
-        <button onClick={() => setMode("circle")}>Circle</button>
-        <button onClick={() => setMode("line")}>Line</button>
-        <button onClick={() => setMode("move")}>Move Mode</button>
-        <button onClick={() => console.log(canvasObjects, canvasObjectIds)}>
-          log
-        </button>
-      </div>
+    <div style={{ position: "relative" }}>
+      {selectedTextBoxId && (
+        <input
+          type="text"
+          value={inputText}
+          onChange={(e) => setInputText(e.target.value)}
+          onBlur={updateText} // 포커스를 잃으면 텍스트 업데이트
+          onKeyDown={(e) => e.key === "Enter" && updateText()} // Enter 키로 텍스트 업데이트
+          style={{
+            position: "absolute",
+            left: `${inputPosition.x}px`,
+            top: `${inputPosition.y}px`,
+            fontSize: `${canvasObjects[selectedTextBoxId]?.fontSize}px`,
+            fontFamily: canvasObjects[selectedTextBoxId]?.fontStyle,
+          }}
+        />
+      )}
       <canvas
         ref={canvasRef}
         width={800}

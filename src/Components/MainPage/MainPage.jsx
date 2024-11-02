@@ -2,14 +2,27 @@ import React from "react";
 import Canvas from "../Canvas/Canvas";
 import EditNavigator from "../EditNavigator/EditNavigator";
 
-const MainPage = () => {
+const MainPage = ({
+  mode,
+  setMode,
+  canvasObjects,
+  setCanvasObjects,
+  canvasObjectIds,
+  setCanvasObjectIds,
+}) => {
   return (
     <div className="MainPageBody">
       <div className="upper-section">
-        <Canvas />
+        <Canvas
+          mode={mode}
+          canvasObjects={canvasObjects}
+          canvasObjectIds={canvasObjectIds}
+          setCanvasObjects={setCanvasObjects}
+          setCanvasObjectIds={setCanvasObjectIds}
+        />
       </div>
       <div className="lower-section">
-        <EditNavigator />
+        <EditNavigator setMode={setMode} />
       </div>
     </div>
   );

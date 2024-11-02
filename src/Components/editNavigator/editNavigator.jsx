@@ -1,9 +1,15 @@
-import React from 'react'
+import React from "react";
 
-const EditNavigator = () => {
+const EditNavigator = ({ setMode }) => {
   return (
-    <div>editNavigator</div>
-  )
-}
+    <div>
+      <button onClick={() => setMode("rectangle")}>Rectangle</button>
+      <button onClick={() => setMode("circle")}>Circle</button>
+      <button onClick={() => setMode("line")}>Line</button>
+      <button onClick={() => setMode("textBox")}>text box</button>
+      <button onClick={() => setMode("move")}>Move Mode</button>
+    </div>
+  );
+};
 
-export default EditNavigator
+export default EditNavigator;

@@ -1,22 +1,16 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 
 const useRectangle = () => {
   // 사각형을 그리는 함수
   const draw = useCallback((context, obj, isSelected = false) => {
     context.save();
-    context.translate(obj.positionX, obj.positionY);
     context.fillStyle = obj.color;
-    context.fillRect(-obj.width / 2, -obj.height / 2, obj.width, obj.height);
+    context.fillRect(obj.positionX, obj.positionY, obj.width, obj.height);
 
     if (isSelected) {
       context.strokeStyle = "rgb(255,100,100)"; // 테두리 색상
       context.lineWidth = 2; // 테두리 두께
-      context.strokeRect(
-        -obj.width / 2,
-        -obj.height / 2,
-        obj.width,
-        obj.height
-      );
+      context.strokeRect(obj.positionX, obj.positionY, obj.width, obj.height);
     }
     context.restore();
   }, []);
@@ -24,10 +18,10 @@ const useRectangle = () => {
   // 사각형이 클릭되었는지 확인하는 함수
   const isClicked = useCallback((obj, x, y) => {
     return (
-      x >= obj.positionX - obj.width / 2 &&
-      x <= obj.positionX + obj.width / 2 &&
-      y >= obj.positionY - obj.height / 2 &&
-      y <= obj.positionY + obj.height / 2
+      x >= obj.positionX &&
+      x <= obj.positionX + obj.width &&
+      y >= obj.positionY &&
+      y <= obj.positionY + obj.height
     );
   }, []);
 
@@ -36,8 +30,8 @@ const useRectangle = () => {
     const type = "rectangle";
     const width = Math.abs(endX - startX);
     const height = Math.abs(endY - startY);
-    const positionX = (startX + endX) / 2;
-    const positionY = (startY + endY) / 2;
+    const positionX = Math.min(startX, endX);
+    const positionY = Math.min(startY, endY);
     const newRectangle = {
       id,
       type,
