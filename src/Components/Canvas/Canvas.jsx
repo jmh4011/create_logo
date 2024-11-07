@@ -2,7 +2,9 @@ import { useRef, useState, useEffect } from "react";
 import useRectangle from "./useRectangle";
 import useCircle from "./useCircle";
 import useLine from "./useLine";
-import useTextBox from "./useTextBox";
+import useTextBoxType1 from "./useTextBoxType1";
+import useTextBoxType2 from "./useTextBoxType2";
+import useTextBoxManager from "./useTextBoxManager";
 
 const Canvas = ({
   mode,
@@ -15,21 +17,25 @@ const Canvas = ({
   const rectangle = useRectangle();
   const circle = useCircle();
   const line = useLine();
-  const textBox = useTextBox();
+  const textBoxType1 = useTextBoxType1();
+  const textBoxType2 = useTextBoxType2();
+
   const [idCount, setIdCount] = useState(1);
   const [dragStart, setDragStart] = useState(null);
   const [draggingObject, setDraggingObject] = useState(null);
-  const [selectedRectId, setSelectedRectId] = useState();
-  const [point, setPoint] = useState({ x: 0, y: 0 });
-  const [selectedTextBoxId, setSelectedTextBoxId] = useState(null);
-  const [inputText, setInputText] = useState("");
-  const [inputPosition, setInputPosition] = useState({ x: 0, y: 0 });
-
-  const [isMouseDown, setIsMouseDown] = useState(false);
   const [selectedObjectId, setSelectedObjectId] = useState(null);
+  const [point, setPoint] = useState({ x: 0, y: 0 });
 
-  const [history, setHistory] = useState([]);
-  const [redoHistory, setRedoHistory] = useState([]);
+  const {
+    selectedTextBoxId,
+    inputText,
+    inputPosition,
+    inputRef,
+    setInputText,
+    calculateTextWidth,
+    startEditing,
+    updateText,
+  } = useTextBoxManager(canvasObjects, setCanvasObjects);
 
   const draw = (context, canvasObject, isSelected = false) => {
     switch (canvasObject.type) {
@@ -42,8 +48,11 @@ const Canvas = ({
       case "line":
         line.draw(context, canvasObject, isSelected);
         break;
-      case "textBox":
-        textBox.draw(context, canvasObject, isSelected);
+      case "textBoxType1":
+        textBoxType1.draw(context, canvasObject, isSelected);
+        break;
+      case "textBoxType2":
+        textBoxType2.draw(context, canvasObject, isSelected);
         break;
       default:
         console.error("Unknown type:", canvasObject.type);
@@ -58,8 +67,10 @@ const Canvas = ({
         return circle.isClicked(canvasObject, x, y);
       case "line":
         return line.isClicked(canvasObject, x, y);
-      case "textBox":
-        return textBox.isClicked(canvasObject, x, y);
+      case "textBoxType1":
+        return textBoxType1.isClicked(canvasObject, x, y);
+      case "textBoxType2":
+        return textBoxType2.isClicked(canvasObject, x, y);
       default:
         console.error("Unknown type:", canvasObject.type);
         return false;
@@ -74,20 +85,14 @@ const Canvas = ({
         return circle.create(id, startX, startY, endX, endY);
       case "line":
         return line.create(id, startX, startY, endX, endY);
-      case "textBox":
-        return textBox.create(id, startX, startY, endX, endY);
+      case "textBoxType1":
+        return textBoxType1.create(id, startX, startY, endX, endY);
+      case "textBoxType2":
+        return textBoxType2.create(id, startX, startY, endX, endY);
       default:
         console.error("Unknown type:", mode);
         return null;
     }
-  };
-
-  const addHistory = () => {
-    setRedoHistory([]);
-    setHistory((prev) => [
-      ...prev,
-      { objects: { ...canvasObjects }, ids: [...canvasObjectIds] },
-    ]);
   };
 
   useEffect(() => {
@@ -97,8 +102,8 @@ const Canvas = ({
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     canvasObjectIds.forEach((id) => {
-      const isSelected = id === selectedRectId || draggingObject?.id === id;
-      draw(context, canvasObjects[id], true);
+      const isSelected = id === selectedObjectId;
+      draw(context, canvasObjects[id], isSelected);
     });
 
     if (draggingObject) {
@@ -107,7 +112,6 @@ const Canvas = ({
   }, [canvasObjects, canvasObjectIds, draw, draggingObject]);
 
   const handleMouseDown = (e) => {
-    addHistory();
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -115,16 +119,18 @@ const Canvas = ({
     if (mode === "move") {
       canvasObjectIds.forEach((id) => {
         if (isClicked(canvasObjects[id], x, y)) {
-          if (canvasObjects[id].type === "textBox") {
-            setSelectedTextBoxId(id);
-            setInputText(canvasObjects[id].text); // 선택된 텍스트 박스의 텍스트 설정
-            setInputPosition({
-              x: canvasObjects[id].positionX,
-              y: canvasObjects[id].positionY,
-            });
-            console.log(selectedTextBoxId, inputText, inputPosition);
+          if (canvasObjects[id].type.includes("textBox")) {
+            startEditing(
+              id,
+              canvasObjects[id].text,
+              {
+                x: canvasObjects[id].positionX,
+                y: canvasObjects[id].positionY,
+              },
+              canvasObjects[id].fontSize
+            );
           } else {
-            setSelectedRectId(id);
+            setSelectedObjectId(id);
             setPoint({
               x: x - canvasObjects[id].positionX,
               y: y - canvasObjects[id].positionY,
@@ -137,37 +143,19 @@ const Canvas = ({
     }
   };
 
-  const updateText = () => {
-    if (selectedTextBoxId) {
-      setCanvasObjects((prev) => ({
-        ...prev,
-        [selectedTextBoxId]: { ...prev[selectedTextBoxId], text: inputText },
-      }));
-      setSelectedTextBoxId(null); // 텍스트 변경 후 선택 해제
-      setInputText(""); // 입력 필드 초기화
-    }
-  };
-
   const handleMouseMove = (e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-    context.strokeStyle = "blue";
-    context.lineWidth = 2;
-
-    context.strokeRect(dragStart.x, dragStart.y, x, y);
-
     if (mode !== "move" && dragStart) {
       const createdObject = createObject(null, dragStart.x, dragStart.y, x, y);
       setDraggingObject({ ...createdObject, color: "rgb(0, 0, 0)" });
-    } else if (mode === "move" && selectedRectId !== null) {
+    } else if (mode === "move" && selectedObjectId !== null) {
       setCanvasObjects((prev) => ({
         ...prev,
-        [selectedRectId]: {
-          ...prev[selectedRectId],
+        [selectedObjectId]: {
+          ...prev[selectedObjectId],
           positionX: x - point.x,
           positionY: y - point.y,
         },
@@ -201,68 +189,37 @@ const Canvas = ({
       setDragStart(null);
     }
 
-    setSelectedRectId(null);
+    setSelectedObjectId(null);
   };
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.ctrlKey && e.key === "z") {
-        if (history.length > 0) {
-          const prevState = history[history.length - 1];
-          setCanvasObjects(prevState.objects);
-          setCanvasObjectIds(prevState.ids);
-
-          setRedoHistory((prev) => [
-            ...prev,
-            { objects: { ...canvasObjects }, ids: [...canvasObjectIds] },
-          ]);
-
-          setHistory((prev) => prev.slice(0, -1));
-        }
-      }
-      if (e.ctrlKey && e.key === "y") {
-        if (redoHistory.length > 0) {
-          const nextState = redoHistory[redoHistory.length - 1];
-          setCanvasObjects(nextState.objects);
-          setCanvasObjectIds(nextState.ids);
-
-          // 히스토리에 복구된 상태 추가
-          setHistory((prev) => [
-            ...prev,
-            { objects: { ...canvasObjects }, ids: [...canvasObjectIds] },
-          ]);
-
-          // redo 히스토리에서 마지막 상태 제거
-          setRedoHistory((prev) => prev.slice(0, -1));
-        }
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [canvasObjects, canvasObjectIds, history, redoHistory]);
 
   return (
     <div style={{ position: "relative" }}>
       {selectedTextBoxId && (
         <input
+          ref={inputRef}
           type="text"
           value={inputText}
           onChange={(e) => setInputText(e.target.value)}
-          onBlur={updateText} // 포커스를 잃으면 텍스트 업데이트
-          onKeyDown={(e) => e.key === "Enter" && updateText()} // Enter 키로 텍스트 업데이트
+          onBlur={updateText}
+          onKeyDown={(e) => e.key === "Enter" && updateText()}
           style={{
             position: "absolute",
+            width: `${calculateTextWidth(
+              inputText,
+              `${canvasObjects[selectedTextBoxId]?.fontSize}px ${canvasObjects[selectedTextBoxId]?.fontStyle}`
+            )}px`,
             left: `${inputPosition.x}px`,
             top: `${inputPosition.y}px`,
             fontSize: `${canvasObjects[selectedTextBoxId]?.fontSize}px`,
             fontFamily: canvasObjects[selectedTextBoxId]?.fontStyle,
+            padding: "0",
+            border: "none",
+            outline: "none",
+            background: "transparent",
           }}
         />
       )}
+
       <canvas
         ref={canvasRef}
         width={800}

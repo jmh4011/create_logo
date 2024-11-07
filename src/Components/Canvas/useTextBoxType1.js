@@ -1,6 +1,6 @@
 import { useCallback } from "react";
 
-const useTextBox = () => {
+const useTextBoxType1 = () => {
   // 텍스트 박스를 그리는 함수
   const draw = useCallback((context, obj, isSelected = false) => {
     context.save();
@@ -44,11 +44,11 @@ const useTextBox = () => {
     const positionY = Math.min(startY, endY);
     return {
       id,
-      type: "textBox",
+      type: "textBoxType1",
       positionX,
       positionY,
       text: "TEXT",
-      fontSize: Math.min(width, height),
+      fontSize: height,
       fontStyle: "Arial",
       color: "black",
     };
@@ -61,4 +61,4 @@ const useTextBox = () => {
   };
 };
 
-export default useTextBox;
+export default useTextBoxType1;
