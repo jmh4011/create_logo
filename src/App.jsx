@@ -4,7 +4,7 @@ import SideBar from "./Components/SideBar/SideBar";
 import MainPage from "./Components/MainPage/MainPage";
 
 function App() {
-  const [mode, setMode] = useState("rectangle"); // 'rectangle' | 'circle' | 'line' | 'testBox' |'move' 모드를 설정
+  const [mode, setMode] = useState("rectangle"); // 'rectangle' | 'circle' | 'line' | 'text' |'move' 모드를 설정
   const [canvasObjects, setCanvasObjects] = useState({});
   const [canvasObjectIds, setCanvasObjectIds] = useState([]);
   return (

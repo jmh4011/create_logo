@@ -1,10 +1,6 @@
-import { useRef, useState, useEffect } from "react";
-import useRectangle from "./useRectangle";
-import useCircle from "./useCircle";
-import useLine from "./useLine";
-import useTextBoxType1 from "./useTextBoxType1";
-import useTextBoxType2 from "./useTextBoxType2";
-import useTextBoxManager from "./useTextBoxManager";
+import React, { useEffect, useState } from "react";
+import Shape from "./Shape";
+import DetailMenu from "./DetailMenu";
 
 const Canvas = ({
   mode,
@@ -13,223 +9,170 @@ const Canvas = ({
   setCanvasObjects,
   setCanvasObjectIds,
 }) => {
-  const canvasRef = useRef(null);
-  const rectangle = useRectangle();
-  const circle = useCircle();
-  const line = useLine();
-  const textBoxType1 = useTextBoxType1();
-  const textBoxType2 = useTextBoxType2();
-
-  const [idCount, setIdCount] = useState(1);
-  const [dragStart, setDragStart] = useState(null);
-  const [draggingObject, setDraggingObject] = useState(null);
-  const [selectedObjectId, setSelectedObjectId] = useState(null);
-  const [point, setPoint] = useState({ x: 0, y: 0 });
-
-  const {
-    selectedTextBoxId,
-    inputText,
-    inputPosition,
-    inputRef,
-    setInputText,
-    calculateTextWidth,
-    startEditing,
-    updateText,
-  } = useTextBoxManager(canvasObjects, setCanvasObjects);
-
-  const draw = (context, canvasObject, isSelected = false) => {
-    switch (canvasObject.type) {
-      case "rectangle":
-        rectangle.draw(context, canvasObject, isSelected);
-        break;
-      case "circle":
-        circle.draw(context, canvasObject, isSelected);
-        break;
-      case "line":
-        line.draw(context, canvasObject, isSelected);
-        break;
-      case "textBoxType1":
-        textBoxType1.draw(context, canvasObject, isSelected);
-        break;
-      case "textBoxType2":
-        textBoxType2.draw(context, canvasObject, isSelected);
-        break;
-      default:
-        console.error("Unknown type:", canvasObject.type);
-    }
-  };
-
-  const isClicked = (canvasObject, x, y) => {
-    switch (canvasObject.type) {
-      case "rectangle":
-        return rectangle.isClicked(canvasObject, x, y);
-      case "circle":
-        return circle.isClicked(canvasObject, x, y);
-      case "line":
-        return line.isClicked(canvasObject, x, y);
-      case "textBoxType1":
-        return textBoxType1.isClicked(canvasObject, x, y);
-      case "textBoxType2":
-        return textBoxType2.isClicked(canvasObject, x, y);
-      default:
-        console.error("Unknown type:", canvasObject.type);
-        return false;
-    }
-  };
-
-  const createObject = (id, startX, startY, endX, endY) => {
-    switch (mode) {
-      case "rectangle":
-        return rectangle.create(id, startX, startY, endX, endY);
-      case "circle":
-        return circle.create(id, startX, startY, endX, endY);
-      case "line":
-        return line.create(id, startX, startY, endX, endY);
-      case "textBoxType1":
-        return textBoxType1.create(id, startX, startY, endX, endY);
-      case "textBoxType2":
-        return textBoxType2.create(id, startX, startY, endX, endY);
-      default:
-        console.error("Unknown type:", mode);
-        return null;
-    }
-  };
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [tempObject, setTempObject] = useState(null);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [menuPosition, setMenuPosition] = useState(null);
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-
-    context.clearRect(0, 0, canvas.width, canvas.height);
-
-    canvasObjectIds.forEach((id) => {
-      const isSelected = id === selectedObjectId;
-      draw(context, canvasObjects[id], isSelected);
-    });
-
-    if (draggingObject) {
-      draw(context, draggingObject, true);
-    }
-  }, [canvasObjects, canvasObjectIds, draw, draggingObject]);
+    console.log(canvasObjects, canvasObjectIds);
+  }, [canvasObjectIds, canvasObjects]);
 
   const handleMouseDown = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const canvasRect = e.currentTarget.getBoundingClientRect();
+    const startX = e.clientX - canvasRect.left;
+    const startY = e.clientY - canvasRect.top;
+    console.log("!!");
 
-    if (mode === "move") {
-      canvasObjectIds.forEach((id) => {
-        if (isClicked(canvasObjects[id], x, y)) {
-          if (canvasObjects[id].type.includes("textBox")) {
-            startEditing(
-              id,
-              canvasObjects[id].text,
-              {
-                x: canvasObjects[id].positionX,
-                y: canvasObjects[id].positionY,
-              },
-              canvasObjects[id].fontSize
-            );
-          } else {
-            setSelectedObjectId(id);
-            setPoint({
-              x: x - canvasObjects[id].positionX,
-              y: y - canvasObjects[id].positionY,
-            });
-          }
-        }
-      });
-    } else {
-      setDragStart({ x, y });
+    setDragStart({ x: startX, y: startY });
+    if (!menuPosition) closeDetailMenu();
+
+    switch (mode) {
+      case "move":
+        setIsDrawing(false);
+        return;
+
+      case "rectangle":
+      case "circle":
+      case "line":
+      case "text":
+        setIsDrawing(true);
+        setTempObject({
+          id: canvasObjectIds.length > 0 ? Math.max(...canvasObjectIds) + 1 : 0,
+          type: mode,
+          position: { x: startX, y: startY },
+          size: { width: 0, height: 0 },
+          color: "blue",
+          text: mode === "text" ? "Enter text" : "",
+          isEditing: false,
+        });
+        break;
+
+      default:
+        console.warn(`Unknown mode: ${mode}`);
+        break;
     }
   };
 
   const handleMouseMove = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    if (!isDrawing) return;
 
-    if (mode !== "move" && dragStart) {
-      const createdObject = createObject(null, dragStart.x, dragStart.y, x, y);
-      setDraggingObject({ ...createdObject, color: "rgb(0, 0, 0)" });
-    } else if (mode === "move" && selectedObjectId !== null) {
-      setCanvasObjects((prev) => ({
-        ...prev,
-        [selectedObjectId]: {
-          ...prev[selectedObjectId],
-          positionX: x - point.x,
-          positionY: y - point.y,
-        },
+    const canvasRect = e.currentTarget.getBoundingClientRect();
+    const currentX = e.clientX - canvasRect.left;
+    const currentY = e.clientY - canvasRect.top;
+
+    if (tempObject) {
+      const width = Math.abs(currentX - dragStart.x);
+      const height = Math.abs(currentY - dragStart.y);
+      const positionX = Math.min(currentX, dragStart.x);
+      const positionY = Math.min(currentY, dragStart.y);
+
+      setTempObject((prevObject) => ({
+        ...prevObject,
+        position: { x: positionX, y: positionY },
+        size: { width, height },
       }));
     }
   };
 
-  const handleMouseUp = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+  const handleMouseUp = () => {
+    if (!isDrawing) return;
+    setIsDrawing(false);
 
-    if (dragStart) {
-      const createdObject = createObject(
-        idCount,
-        dragStart.x,
-        dragStart.y,
-        x,
-        y
-      );
-      if (createdObject) {
-        setCanvasObjects((prev) => ({
-          ...prev,
-          [idCount]: createdObject,
-        }));
-        setCanvasObjectIds((prev) => [...prev, idCount]);
-        setIdCount(idCount + 1);
-      }
+    if (!tempObject) return;
 
-      setDraggingObject(null);
-      setDragStart(null);
-    }
+    setTempObject(null);
 
-    setSelectedObjectId(null);
+    if (tempObject.size.width + tempObject.size.height < 5) return;
+
+    tempObject.isEditing = true;
+
+    setCanvasObjects((prevObjects) => ({
+      ...prevObjects,
+      [tempObject.id]: tempObject,
+    }));
+    setCanvasObjectIds((prevIds) => [...prevIds, tempObject.id]);
+  };
+
+  const handleUpdateText = (id, newText) => {
+    setCanvasObjects((prevObjects) => ({
+      ...prevObjects,
+      [id]: { ...prevObjects[id], text: newText },
+    }));
+  };
+
+  const handleDeleteObject = (id) => {
+    setCanvasObjects((prevObjects) => {
+      const updatedObjects = { ...prevObjects };
+      delete updatedObjects[id];
+      return updatedObjects;
+    });
+    setCanvasObjectIds((prevIds) => prevIds.filter((objId) => objId !== id));
+  };
+
+  const openDetailMenu = (e, id) => {
+    e.preventDefault();
+    const canvasRect = e.currentTarget.getBoundingClientRect();
+    const currentX = e.clientX - canvasRect.left;
+    const currentY = e.clientY - canvasRect.top;
+    setSelectedId(id);
+    setMenuPosition({
+      x: currentX,
+      y: currentY,
+    });
+  };
+
+  const closeDetailMenu = () => {
+    setMenuPosition(null);
+    setSelectedId(null);
+  };
+
+  const setCanvasObject = (id, obj) => {
+    setCanvasObjects((prevObjects) => ({
+      ...prevObjects,
+      [id]: obj,
+    }));
   };
 
   return (
-    <div style={{ position: "relative" }}>
-      {selectedTextBoxId && (
-        <input
-          ref={inputRef}
-          type="text"
-          value={inputText}
-          onChange={(e) => setInputText(e.target.value)}
-          onBlur={updateText}
-          onKeyDown={(e) => e.key === "Enter" && updateText()}
-          style={{
-            position: "absolute",
-            width: `${calculateTextWidth(
-              inputText,
-              `${canvasObjects[selectedTextBoxId]?.fontSize}px ${canvasObjects[selectedTextBoxId]?.fontStyle}`
-            )}px`,
-            left: `${inputPosition.x}px`,
-            top: `${inputPosition.y}px`,
-            fontSize: `${canvasObjects[selectedTextBoxId]?.fontSize}px`,
-            fontFamily: canvasObjects[selectedTextBoxId]?.fontStyle,
-            padding: "0",
-            border: "none",
-            outline: "none",
-            background: "transparent",
-          }}
-        />
-      )}
+    <div
+      style={{
+        position: "relative",
+        width: "800px",
+        height: "600px",
+        border: "1px solid black",
+        userSelect: "none",
+      }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
+      {canvasObjectIds.map((id) => (
+        <div onContextMenu={(e) => openDetailMenu(e, id)} key={id}>
+          <Shape
+            {...canvasObjects[id]}
+            onUpdateText={(text) => handleUpdateText(id, text)}
+            onDelete={() => handleDeleteObject(id)}
+          />
+        </div>
+      ))}
 
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        style={{ border: "1px solid black" }}
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-      />
+      {isDrawing && tempObject && <Shape {...tempObject} />}
+
+      {menuPosition && selectedId !== null && (
+        <div onMouseDown={(e) => e.stopPropagation()}>
+          <DetailMenu
+            id={selectedId}
+            position={menuPosition}
+            canvasObject={canvasObjects[selectedId]}
+            setCanvasObject={(obj) => setCanvasObject(selectedId, obj)}
+            onClose={closeDetailMenu}
+            onDelete={() => handleDeleteObject(selectedId)}
+          />
+        </div>
+      )}
     </div>
   );
 };

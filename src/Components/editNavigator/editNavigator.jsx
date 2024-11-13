@@ -6,8 +6,7 @@ const EditNavigator = ({ setMode }) => {
       <button onClick={() => setMode("rectangle")}>Rectangle</button>
       <button onClick={() => setMode("circle")}>Circle</button>
       <button onClick={() => setMode("line")}>Line</button>
-      <button onClick={() => setMode("textBoxType1")}>text box type1</button>
-      <button onClick={() => setMode("textBoxType2")}>text box type2</button>
+      <button onClick={() => setMode("text")}>text</button>
       <button onClick={() => setMode("move")}>Move Mode</button>
     </div>
   );
