@@ -4,17 +4,28 @@ import SideBar from "./Components/SideBar/SideBar";
 import MainPage from "./Components/MainPage/MainPage";
 
 function App() {
-  const [mode, setMode] = useState("rectangle"); // 'rectangle' | 'circle' | 'line' | 'text' |'move' 모드를 설정
+  const [mode, setMode] = useState("rectangle");
   const [canvasObjects, setCanvasObjects] = useState({});
   const [canvasObjectIds, setCanvasObjectIds] = useState([]);
+
   return (
-    <div className="grid grid-cols-10 h-screen">
-      <div className="col-span-2 bg-blue-500">a</div>
-      <div className="col-span-8 bg-red-500">b</div>
+    <div className="grid grid-rows-10 md:grid-cols-10 md:grid-rows-1 h-screen">
+      <div className="row-span-1 md:col-span-2 bg-black">
+        <SideBar />
+      </div>
+
+      <div className="row-span-9 md:col-span-8 bg-white text-black">
+        <MainPage
+          mode={mode}
+          setMode={setMode}
+          canvasObjects={canvasObjects}
+          canvasObjectIds={canvasObjectIds}
+          setCanvasObjects={setCanvasObjects}
+          setCanvasObjectIds={setCanvasObjectIds}
+        />
+      </div>
     </div>
   );
 }
 
 export default App;
-
-// npx tailwindcss init -p

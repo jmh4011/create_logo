@@ -11,8 +11,8 @@ const MainPage = ({
   setCanvasObjectIds,
 }) => {
   return (
-    <div className="h-full grid grid-rows-10">
-      <div className="upper-section row-span-8">
+    <div className="h-full w-full grid grid-rows-5 bg-white">
+      <div className="row-span-4 h-full w-full bg-white">
         <Canvas
           mode={mode}
           canvasObjects={canvasObjects}
@@ -21,7 +21,7 @@ const MainPage = ({
           setCanvasObjectIds={setCanvasObjectIds}
         />
       </div>
-      <div className="lower-section row-span-2">
+      <div className="row-span-1 h-full w-full bg-white">
         <EditNavigator setMode={setMode} />
       </div>
     </div>

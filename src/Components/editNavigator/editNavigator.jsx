@@ -2,7 +2,7 @@ import React from "react";
 
 const EditNavigator = ({ setMode }) => {
   return (
-    <div>
+    <div className="bg-white">
       <button onClick={() => setMode("rectangle")}>Rectangle</button>
       <button onClick={() => setMode("circle")}>Circle</button>
       <button onClick={() => setMode("line")}>Line</button>

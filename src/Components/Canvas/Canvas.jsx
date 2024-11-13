@@ -137,13 +137,7 @@ const Canvas = ({
 
   return (
     <div
-      style={{
-        position: "relative",
-        width: "800px",
-        height: "600px",
-        border: "1px solid black",
-        userSelect: "none",
-      }}
+      className="relative w-full h-full border border-black select-none bg-white"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
