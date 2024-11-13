@@ -4,10 +4,10 @@ import "./SideBar.css";
 
 const SideBar = () => {
   return (
-    <div className="SideBarBody">
-      <div className="logo">
+    <div className="SideBarBody flex flex-row items-center p-4 bg-gray-800 text-white">
+      <div className="logo mr-4">
         <a href="/">
-          <img src={Logo} alt="Logo" />
+          <img src={Logo} alt="Logo" className="h-8 w-auto" />
         </a>
       </div>
     </div>

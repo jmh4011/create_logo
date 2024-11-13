@@ -83,7 +83,6 @@ const DetailMenu = ({
           gridRow: 4,
           backgroundColor: "rgb(255,255,255)",
           border: "1px solid gray",
-
           cursor: "pointer",
           color: "red",
         }}

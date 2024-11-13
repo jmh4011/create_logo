@@ -8,18 +8,13 @@ function App() {
   const [canvasObjects, setCanvasObjects] = useState({});
   const [canvasObjectIds, setCanvasObjectIds] = useState([]);
   return (
-    <div className="container">
-      <SideBar />
-      <MainPage
-        mode={mode}
-        setMode={setMode}
-        canvasObjects={canvasObjects}
-        canvasObjectIds={canvasObjectIds}
-        setCanvasObjects={setCanvasObjects}
-        setCanvasObjectIds={setCanvasObjectIds}
-      />
+    <div className="grid grid-cols-10 h-screen">
+      <div className="col-span-2 bg-blue-500">a</div>
+      <div className="col-span-8 bg-red-500">b</div>
     </div>
   );
 }
 
 export default App;
+
+// npx tailwindcss init -p
