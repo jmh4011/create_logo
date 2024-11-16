@@ -23,7 +23,6 @@ const Canvas = ({
     const canvasRect = e.currentTarget.getBoundingClientRect();
     const startX = e.clientX - canvasRect.left;
     const startY = e.clientY - canvasRect.top;
-    console.log("!!");
 
     setDragStart({ x: startX, y: startY });
     if (!menuPosition) closeDetailMenu();

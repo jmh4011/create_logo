@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-
+import TextareaAutosize from "react-textarea-autosize";
 const Shape = ({
   type,
   position,
@@ -95,19 +95,12 @@ const Shape = ({
       break;
   }
 
-  const handleInput = () => {
-    const textarea = inputRef.current;
-    textarea.style.height = "auto"; // 높이를 초기화하여 scrollHeight를 다시 계산
-    textarea.style.height = `${textarea.scrollHeight}px`; // 텍스트 내용에 맞춰 높이를 설정
-  };
-
   return (
     <div style={shapeStyle} onDoubleClick={handleDoubleClick}>
       {editing ? (
-        <textarea
+        <TextareaAutosize
           ref={inputRef}
           value={text}
-          onInput={handleInput}
           onChange={(e) => onUpdateText(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}

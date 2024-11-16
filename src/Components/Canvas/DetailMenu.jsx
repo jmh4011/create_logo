@@ -28,6 +28,7 @@ const DetailMenu = ({
   };
 
   const handleDelete = useCallback(() => {
+    onClose();
     onDelete();
   }, [onDelete]);
 
