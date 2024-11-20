@@ -4,7 +4,8 @@ import "./App.css";
 import SideBar from "./Components/SideBar/SideBar";
 import MainPage from "./Components/MainPage/MainPage";
 import Navbar from "./Components/Home/Navbar";
-
+import Hero from "./Components/Home/Hero";
+import About from "./Components/Home/About";
 function App() {
   const [mode, setMode] = useState("rectangle");
   const [canvasObjects, setCanvasObjects] = useState({});
@@ -16,8 +17,14 @@ function App() {
       <Route
         path="/"
         element={
-          <div>
-            <Navbar />
+          <div className="overflow-x-hidden text-neutral-300 antialiased selection:bg-cyan-300 selection:text-cyan-900 bg-black">
+            <div className="relative w-screen">
+              <div className="container mx-auto px-8">
+                <Navbar />
+                <Hero />
+                <About />
+              </div>
+            </div>
           </div>
         }
       />
