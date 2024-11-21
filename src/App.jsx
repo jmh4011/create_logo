@@ -9,7 +9,7 @@ import About from "./Components/Home/About";
 import Technologies from "./Components/Home/Technologies";
 import Experience from "./Components/Home/Experience";
 import Galleries from "./Components/Home/Galleries";
-
+import Contact from "./Components/Home/Contact";
 function App() {
   const [mode, setMode] = useState("rectangle");
   const [canvasObjects, setCanvasObjects] = useState({});
@@ -30,6 +30,7 @@ function App() {
                 <Technologies />
                 <Experience />
                 <Galleries />
+                <Contact />
               </div>
             </div>
           </div>
