@@ -2,7 +2,7 @@
 
 import { createSlice } from "@reduxjs/toolkit";
 
-const initialState = "rectangle";
+const initialState = null;
 
 const modeSlice = createSlice({
   name: "mode",

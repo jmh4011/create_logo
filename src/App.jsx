@@ -11,11 +11,6 @@ import Experience from "./Components/Home/Experience";
 import Galleries from "./Components/Home/Galleries";
 import Contact from "./Components/Home/Contact";
 function App() {
-  const [mode, setMode] = useState("rectangle");
-  const [canvasObjects, setCanvasObjects] = useState({});
-  const [canvasObjectIds, setCanvasObjectIds] = useState([]);
-  const [selectedCanvasObjectId, setSelectedCanvasObjectId] = useState();
-
   return (
     <Routes>
       <Route

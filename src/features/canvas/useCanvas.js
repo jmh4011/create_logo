@@ -1,5 +1,3 @@
-// features/canvas/useCanvas.js
-
 import { useSelector, useDispatch } from "react-redux";
 import { useCallback } from "react";
 import {
@@ -12,14 +10,10 @@ import {
 const useCanvas = () => {
   const dispatch = useDispatch();
 
-  // 상태를 메모이제이션하여 불필요한 리렌더링 방지
-  const shapes = useSelector((state) => state.canvas.Shapes);
-
-  const shapeIds = useSelector((state) => state.canvas.ShapeIds);
-
+  const shapes = useSelector((state) => state.canvas.shapes);
+  const shapeIds = useSelector((state) => state.canvas.shapeIds);
   const selectedShapeId = useSelector((state) => state.canvas.selectedShapeId);
 
-  // 액션 디스패치 함수를 useCallback으로 감싸서 참조의 안정성 확보
   const addShape = useCallback(
     (shape) => {
       dispatch(addObject(shape));

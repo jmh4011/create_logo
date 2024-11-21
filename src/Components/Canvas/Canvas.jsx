@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import Shape from "./Shape";
+import Shape from "../Shape/Shape";
 import DetailMenu from "./DetailMenu";
 import useCanvas from "../../features/canvas/useCanvas";
 import useMode from "../../features/mode/useMode";
@@ -15,7 +15,7 @@ const Canvas = ({}) => {
     selectShape,
   } = useCanvas();
 
-  const { mode } = useMode();
+  const { mode, changeMode } = useMode();
   const [isDrawing, setIsDrawing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [menuPosition, setMenuPosition] = useState(null);
@@ -58,6 +58,7 @@ const Canvas = ({}) => {
           size: { width: 0, height: 0 },
           color: "rgb(0,0,0)",
         });
+        break;
       case "line":
         addShape({
           id: id,
@@ -98,12 +99,13 @@ const Canvas = ({}) => {
           size: { width: 100, height: 100 },
           color: "rgb(0,0,0)",
         });
+        break;
       case "line":
         addShape({
           id: id,
           type: mode,
           position: { x: startX, y: startY },
-          endPosition: { x: startX + 10, y: startY + 10 },
+          endPosition: { x: startX + 100, y: startY },
           thickness: 5,
           color: "rgb(0,0,0)",
         });
@@ -140,7 +142,6 @@ const Canvas = ({}) => {
       basicMove(currentX, currentY);
     }
   };
-
   const dragMove = (currentX, currentY) => {
     const width = Math.abs(currentX - dragStart.x);
     const height = Math.abs(currentY - dragStart.y);
@@ -155,6 +156,7 @@ const Canvas = ({}) => {
           position: { x: positionX, y: positionY },
           size: { width: width, height: height },
         });
+        break;
       case "line":
         updateShape(draggingShapeId, {
           position: { x: dragStart.x, y: dragStart.y },
@@ -176,10 +178,11 @@ const Canvas = ({}) => {
         updateShape(draggingShapeId, {
           position: { x: currentX, y: currentY },
         });
+        break;
       case "line":
         updateShape(draggingShapeId, {
           position: { x: currentX, y: currentY },
-          endPosition: { x: currentX + 10, y: currentY + 10 },
+          endPosition: { x: currentX + 100, y: currentY },
         });
         break;
 
@@ -193,6 +196,7 @@ const Canvas = ({}) => {
     if (!isDrawing) return;
     setIsDrawing(false);
     setDraggingShapeId(null);
+    changeMode(null);
   };
 
   const openDetailMenu = (e, id) => {
@@ -200,7 +204,7 @@ const Canvas = ({}) => {
     const canvasRect = e.currentTarget.getBoundingClientRect();
     const currentX = e.clientX - canvasRect.left;
     const currentY = e.clientY - canvasRect.top;
-    setSelectedId(id);
+    selectShape(id);
     setMenuPosition({
       x: currentX,
       y: currentY,
@@ -209,7 +213,7 @@ const Canvas = ({}) => {
 
   const closeDetailMenu = () => {
     setMenuPosition(null);
-    setSelectedId(null);
+    selectShape(null);
   };
 
   return (
@@ -220,7 +224,7 @@ const Canvas = ({}) => {
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <button onClick={setDragCreateMode(!dragCreateMode)}>
+      <button onClick={() => setDragCreateMode((prevMode) => !prevMode)}>
         드래그 생성 모드 변경
       </button>
 
