@@ -1,76 +1,51 @@
-import project1 from "../assets/projects/project-1.jpg";
-import project2 from "../assets/projects/project-2.jpg";
-import project3 from "../assets/projects/project-3.jpg";
-import project4 from "../assets/projects/project-4.jpg";
+import project1 from "../assets/images/project-1.jpg";
+import project2 from "../assets/images/project-2.jpg";
+import project3 from "../assets/images/project-3.jpg";
+import project4 from "../assets/images/project-4.jpg";
 
-export const HERO_CONTENT = `I am a passionate full stack developer with a knack for crafting robust and scalable web applications. With 5 years of hands-on experience, I have honed my skills in front-end technologies like React and Next.js, as well as back-end technologies like Node.js, MySQL, PostgreSQL, and MongoDB. My goal is to leverage my expertise to create innovative solutions that drive business growth and deliver exceptional user experiences.`;
+export const HERO_CONTENT = `I developed a unique logo design website entirely using React.js, focusing on providing a seamless and user-friendly experience. What sets it apart from other platforms is its commitment to being completely free, with no hidden costs or premium features. The website is designed to help individuals and small businesses create professional-quality logos without worrying about budget constraints. By combining modern web technologies and intuitive design, the platform ensures that anyone, regardless of their technical expertise, can easily craft the perfect logo. My goal is to empower users with a truly free tool that makes branding accessible to everyone.`;
 
-export const ABOUT_TEXT = `I am a dedicated and versatile full stack developer with a passion for creating efficient and user-friendly web applications. With 5 years of professional experience, I have worked with a variety of technologies, including React, Next.js, Node.js, MySQL, PostgreSQL, and MongoDB. My journey in web development began with a deep curiosity for how things work, and it has evolved into a career where I continuously strive to learn and adapt to new challenges. I thrive in collaborative environments and enjoy solving complex problems to deliver high-quality solutions. Outside of coding, I enjoy staying active, exploring new technologies, and contributing to open-source projects.`;
+export const ABOUT_TEXT = `1. 100% Free Forever
+We believe in providing value without any hidden costs. Unlike other platforms, we offer complete access to our features at no charge, ensuring you can focus on your creativity, not your budget.
+
+2. Built with Modern Technology
+Our website is developed using ReactJS, a cutting-edge JavaScript library, ensuring fast, smooth, and responsive performance across all devices. We've also integrated FontAwesome for a vast collection of high-quality icons, helping you design logos that truly stand out.
+
+3. User-Friendly Interface
+Whether you're a design pro or a complete beginner, our intuitive interface makes it easy for everyone to create stunning logos. No design experience? No problem!
+
+4. Versatility and Customization
+Choose from a variety of templates, fonts, and colors to customize your logo exactly the way you want it. Adjust every detail to make your logo unique and memorable.`;
 
 export const EXPERIENCES = [
   {
-    year: "2023 - Present",
-    role: "Senior Full Stack Developer",
-    company: "Google Inc.",
-    description: `Led a team in developing and maintaining web applications using JavaScript, React.js, and Node.js. Implemented RESTful APIs and integrated with MongoDB databases. Collaborated with stakeholders to define project requirements and timelines.`,
-    technologies: ["Javascript", "React.js", "Next.js", "mongoDB"],
+    name: "React JS",
+    feature: "Frontend Framework",
+    description: `Built the core functionality of a free logo creation website using React.js. This framework enabled a fast, responsive, and interactive user interface, allowing users to design logos effortlessly. By leveraging React's component-based architecture, the website ensures modularity and scalability for future updates.`,
+    technologies: ["JavaScript", "React.js", "Next.js", "Node.js"],
   },
   {
-    year: "2022 - 2023",
-    role: "Frontend Developer",
-    company: "Adobe",
-    description: `Designed and developed user interfaces for web applications using Next.js and React. Worked closely with backend developers to integrate frontend components with Node.js APIs. Implemented responsive designs and optimized frontend performance.`,
-    technologies: ["HTML", "CSS", "Vue.js", "mySQL"],
+    name: "Tailwind CSS",
+    feature: "CSS Framework",
+    description: `Utilized Tailwind CSS to create a visually appealing and responsive design for the free logo creation website. Tailwind's utility-first approach helped streamline the development of customizable and mobile-friendly layouts, ensuring a seamless user experience across devices.`,
+    technologies: ["HTML", "CSS", "Tailwind CSS", "PostCSS"],
   },
   {
-    year: "2021 - 2022",
-    role: "Full Stack Developer",
-    company: "Facebook",
-    description: `Developed and maintained web applications using JavaScript, React.js, and Node.js. Designed and implemented RESTful APIs for data communication. Collaborated with cross-functional teams to deliver high-quality software products on schedule.`,
-    technologies: ["Python", "Svelte", "Three.js", "Postgres"],
+    name: "Figma",
+    feature: "Design Tool",
+    description: `Designed intuitive and user-friendly wireframes and prototypes for the free logo creation website using Figma. Collaborated with developers to translate the designs into functional interfaces, ensuring a consistent visual identity and an engaging user experience.`,
+    technologies: ["UI/UX Design", "Prototyping", "Wireframing", "Figma Plugins"],
   },
   {
-    year: "2020 - 2021",
-    role: "Software Engineer",
-    company: "Paypal",
-    description: `Contributed to the development of web applications using JavaScript, React.js, and Node.js. Managed databases and implemented data storage solutions using MongoDB. Worked closely with product managers to prioritize features and enhancements.`,
-    technologies: ["Ruby", "Rails", "PHP", "Sqlite"],
+    name: "Javascript",
+    feature: "Core Programming Language",
+    description: `Implemented the core logic and interactive features of the free logo creation website using JavaScript. Enabled real-time design updates, dynamic rendering of templates, and seamless integration with backend APIs to provide a smooth and engaging user experience.`,
+    technologies: ["JavaScript", "ES6+", "TypeScript", "APIs"],
+  },
+  {
+    name: "Html5",
+    feature: "Markup Language",
+    description: `Structured the foundation of the free logo creation website using HTML5. Ensured semantic and accessible markup, making the platform compatible with modern browsers and enhancing SEO performance for better user reach.`,
+    technologies: ["HTML5", "Web Standards", "Accessibility", "SEO Optimization"],
   },
 ];
-
-export const PROJECTS = [
-  {
-    title: "E-Commerce Website",
-    image: project1,
-    description:
-      "A fully functional e-commerce website with features like product listing, shopping cart, and user authentication.",
-    technologies: ["HTML", "CSS", "React", "Node.js", "MongoDB"],
-  },
-  {
-    title: "Task Management App",
-    image: project2,
-    description:
-      "An application for managing tasks and projects, with features such as task creation, assignment, and progress tracking.",
-    technologies: ["HTML", "CSS", "Angular", "Firebase"],
-  },
-  {
-    title: "Portfolio Website",
-    image: project3,
-    description:
-      "A personal portfolio website showcasing projects, skills, and contact information.",
-    technologies: ["HTML", "CSS", "React", "Bootstrap"],
-  },
-  {
-    title: "Blogging Platform",
-    image: project4,
-    description:
-      "A platform for creating and publishing blog posts, with features like rich text editing, commenting, and user profiles.",
-    technologies: ["HTML", "CSS", "Vue.js", "Express", "mySQL"],
-  },
-];
-
-export const CONTACT = {
-  address: "767 Fifth Avenue, New York, NY 10153 ",
-  phoneNo: "+12 4555 666 00 ",
-  email: "me@example.com",
-};
