@@ -1,68 +1,61 @@
 // features/canvas/useCanvas.js
 
 import { useSelector, useDispatch } from "react-redux";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import {
-  addCanvasObject,
-  updateCanvasObject,
-  removeCanvasObject,
-  setSelectedCanvasObjectId,
+  addShape as addObject,
+  updateShape as updateObject,
+  removeShape as removeObject,
+  setSelectedShapeId,
 } from "./canvasSlice";
 
 const useCanvas = () => {
   const dispatch = useDispatch();
 
   // 상태를 메모이제이션하여 불필요한 리렌더링 방지
-  const canvasObjects = useSelector((state) => state.canvas.canvasObjects);
-  const memoizedCanvasObjects = useMemo(() => canvasObjects, [canvasObjects]);
+  const shapes = useSelector((state) => state.canvas.Shapes);
 
-  const canvasObjectIds = useSelector((state) => state.canvas.canvasObjectIds);
-  const memoizedCanvasObjectIds = useMemo(
-    () => canvasObjectIds,
-    [canvasObjectIds]
-  );
+  const shapeIds = useSelector((state) => state.canvas.ShapeIds);
 
-  const selectedCanvasObjectId = useSelector(
-    (state) => state.canvas.selectedCanvasObjectId
-  );
+  const selectedShapeId = useSelector((state) => state.canvas.selectedShapeId);
 
   // 액션 디스패치 함수를 useCallback으로 감싸서 참조의 안정성 확보
-  const addObject = useCallback(
-    (object) => {
-      dispatch(addCanvasObject(object));
+  const addShape = useCallback(
+    (shape) => {
+      dispatch(addObject(shape));
     },
     [dispatch]
   );
 
-  const updateObject = useCallback(
-    (object) => {
-      dispatch(updateCanvasObject(object));
+  const updateShape = useCallback(
+    (id, properties) => {
+      dispatch(updateObject({ id, properties }));
     },
     [dispatch]
   );
 
-  const removeObject = useCallback(
+  const removeShape = useCallback(
     (id) => {
-      dispatch(removeCanvasObject(id));
+      dispatch(removeObject(id));
     },
     [dispatch]
   );
 
-  const selectObject = useCallback(
+  const selectShape = useCallback(
     (id) => {
-      dispatch(setSelectedCanvasObjectId(id));
+      dispatch(setSelectedShapeId(id));
     },
     [dispatch]
   );
 
   return {
-    canvasObjects: memoizedCanvasObjects,
-    canvasObjectIds: memoizedCanvasObjectIds,
-    selectedCanvasObjectId,
-    addObject,
-    updateObject,
-    removeObject,
-    selectObject,
+    shapes,
+    shapeIds,
+    selectedShapeId,
+    addShape,
+    updateShape,
+    removeShape,
+    selectShape,
   };
 };
 

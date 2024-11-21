@@ -1,23 +1,28 @@
 import React, { useEffect, useState } from "react";
 import Shape from "./Shape";
 import DetailMenu from "./DetailMenu";
+import useCanvas from "../../features/canvas/useCanvas";
+import useMode from "../../features/mode/useMode";
 
-const Canvas = ({
-  mode,
-  canvasObjects,
-  canvasObjectIds,
-  setCanvasObjects,
-  setCanvasObjectIds,
-}) => {
+const Canvas = ({}) => {
+  const {
+    shapes,
+    shapeIds,
+    selectShapeId,
+    addShape,
+    updateShape,
+    removeShape,
+    selectShape,
+  } = useCanvas();
+
+  const { mode } = useMode();
   const [isDrawing, setIsDrawing] = useState(false);
-  const [tempObject, setTempObject] = useState(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [menuPosition, setMenuPosition] = useState(null);
-  const [selectedId, setSelectedId] = useState(null);
 
-  useEffect(() => {
-    console.log(canvasObjects, canvasObjectIds);
-  }, [canvasObjectIds, canvasObjects]);
+  const [dragCreateMode, setDragCreateMode] = useState(true);
+
+  const [draggingShapeId, setDraggingShapeId] = useState(null);
 
   const handleMouseDown = (e) => {
     const canvasRect = e.currentTarget.getBoundingClientRect();
@@ -27,24 +32,92 @@ const Canvas = ({
     setDragStart({ x: startX, y: startY });
     if (!menuPosition) closeDetailMenu();
 
-    switch (mode) {
-      case "move":
-        setIsDrawing(false);
-        return;
+    if (mode === null) {
+      setIsDrawing(false);
+      return;
+    }
+    setIsDrawing(true);
+    let id = shapeIds.length > 0 ? Math.max(...shapeIds) + 1 : 0;
+    setDraggingShapeId(id);
 
+    if (dragCreateMode) {
+      dragCreate(id, startX, startY);
+    } else {
+      basicCreate(id, startX, startY);
+    }
+  };
+
+  const dragCreate = (id, startX, startY) => {
+    switch (mode) {
       case "rectangle":
       case "circle":
-      case "line":
-      case "text":
-        setIsDrawing(true);
-        setTempObject({
-          id: canvasObjectIds.length > 0 ? Math.max(...canvasObjectIds) + 1 : 0,
+        addShape({
+          id: id,
           type: mode,
           position: { x: startX, y: startY },
           size: { width: 0, height: 0 },
-          color: "blue",
-          text: mode === "text" ? "Enter text" : "",
-          isEditing: false,
+          color: "rgb(0,0,0)",
+        });
+      case "line":
+        addShape({
+          id: id,
+          type: mode,
+          position: { x: startX, y: startY },
+          endPosition: { x: startX, y: startY },
+          thickness: 5,
+          color: "rgb(0,0,0)",
+        });
+        break;
+      case "text":
+        addShape({
+          id: id,
+          type: mode,
+          position: { x: startX, y: startY },
+          size: { width: 0, height: 0 },
+          color: "rgb(255,255,255)",
+          text: "Enter text",
+          fontSize: 16,
+          fontColor: "rgb(0,0,0)",
+        });
+        break;
+
+      default:
+        console.warn(`Unknown mode: ${mode}`);
+        break;
+    }
+  };
+
+  const basicCreate = (id, startX, startY) => {
+    switch (mode) {
+      case "rectangle":
+      case "circle":
+        addShape({
+          id: id,
+          type: mode,
+          position: { x: startX, y: startY },
+          size: { width: 100, height: 100 },
+          color: "rgb(0,0,0)",
+        });
+      case "line":
+        addShape({
+          id: id,
+          type: mode,
+          position: { x: startX, y: startY },
+          endPosition: { x: startX + 10, y: startY + 10 },
+          thickness: 5,
+          color: "rgb(0,0,0)",
+        });
+        break;
+      case "text":
+        addShape({
+          id: id,
+          type: mode,
+          position: { x: startX, y: startY },
+          size: { width: 50, height: 50 },
+          color: "rgb(255,255,255)",
+          text: "Enter text",
+          fontSize: 16,
+          fontColor: "rgb(0,0,0)",
         });
         break;
 
@@ -61,53 +134,65 @@ const Canvas = ({
     const currentX = e.clientX - canvasRect.left;
     const currentY = e.clientY - canvasRect.top;
 
-    if (tempObject) {
-      const width = Math.abs(currentX - dragStart.x);
-      const height = Math.abs(currentY - dragStart.y);
-      const positionX = Math.min(currentX, dragStart.x);
-      const positionY = Math.min(currentY, dragStart.y);
+    if (dragCreateMode) {
+      dragMove(currentX, currentY);
+    } else {
+      basicMove(currentX, currentY);
+    }
+  };
 
-      setTempObject((prevObject) => ({
-        ...prevObject,
-        position: { x: positionX, y: positionY },
-        size: { width, height },
-      }));
+  const dragMove = (currentX, currentY) => {
+    const width = Math.abs(currentX - dragStart.x);
+    const height = Math.abs(currentY - dragStart.y);
+    const positionX = Math.min(currentX, dragStart.x);
+    const positionY = Math.min(currentY, dragStart.y);
+
+    switch (mode) {
+      case "rectangle":
+      case "circle":
+      case "text":
+        updateShape(draggingShapeId, {
+          position: { x: positionX, y: positionY },
+          size: { width: width, height: height },
+        });
+      case "line":
+        updateShape(draggingShapeId, {
+          position: { x: dragStart.x, y: dragStart.y },
+          endPosition: { x: currentX, y: currentY },
+        });
+        break;
+
+      default:
+        console.warn(`Unknown mode: ${mode}`);
+        break;
+    }
+  };
+
+  const basicMove = (currentX, currentY) => {
+    switch (mode) {
+      case "rectangle":
+      case "circle":
+      case "text":
+        updateShape(draggingShapeId, {
+          position: { x: currentX, y: currentY },
+        });
+      case "line":
+        updateShape(draggingShapeId, {
+          position: { x: currentX, y: currentY },
+          endPosition: { x: currentX + 10, y: currentY + 10 },
+        });
+        break;
+
+      default:
+        console.warn(`Unknown mode: ${mode}`);
+        break;
     }
   };
 
   const handleMouseUp = () => {
     if (!isDrawing) return;
     setIsDrawing(false);
-
-    if (!tempObject) return;
-
-    setTempObject(null);
-
-    if (tempObject.size.width + tempObject.size.height < 5) return;
-
-    tempObject.isEditing = true;
-
-    setCanvasObjects((prevObjects) => ({
-      ...prevObjects,
-      [tempObject.id]: tempObject,
-    }));
-    setCanvasObjectIds((prevIds) => [...prevIds, tempObject.id]);
-  };
-
-  const handleUpdateText = (id, newText) => {
-    setCanvasObjects((prevObjects) => ({
-      ...prevObjects,
-      [id]: { ...prevObjects[id], text: newText },
-    }));
-  };
-
-  const handleDeleteObject = (id) => {
-    setCanvasObjects((prevObjects) => {
-      const updatedObjects = { ...prevObjects };
-      delete updatedObjects[id];
-      return updatedObjects;
-    });
-    setCanvasObjectIds((prevIds) => prevIds.filter((objId) => objId !== id));
+    setDraggingShapeId(null);
   };
 
   const openDetailMenu = (e, id) => {
@@ -127,13 +212,6 @@ const Canvas = ({
     setSelectedId(null);
   };
 
-  const setCanvasObject = (id, obj) => {
-    setCanvasObjects((prevObjects) => ({
-      ...prevObjects,
-      [id]: obj,
-    }));
-  };
-
   return (
     <div
       className="relative w-full h-full border border-black select-none bg-white"
@@ -142,17 +220,16 @@ const Canvas = ({
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      {canvasObjectIds.map((id) => (
-        <div onContextMenu={(e) => openDetailMenu(e, id)} key={id}>
-          <Shape
-            {...canvasObjects[id]}
-            onUpdateText={(text) => handleUpdateText(id, text)}
-            onDelete={() => handleDeleteObject(id)}
-          />
-        </div>
-      ))}
+      <button onClick={setDragCreateMode(!dragCreateMode)}>
+        드래그 생성 모드 변경
+      </button>
 
-      {isDrawing && tempObject && <Shape {...tempObject} />}
+      {shapeIds &&
+        shapeIds.map((id) => (
+          <div onContextMenu={(e) => openDetailMenu(e, id)} key={id}>
+            <Shape id={id} />
+          </div>
+        ))}
 
       {menuPosition && selectedId !== null && (
         <div onMouseDown={(e) => e.stopPropagation()}>

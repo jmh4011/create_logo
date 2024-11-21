@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import "./App.css";
-import SideBar from "./Components/SideBar/SideBar";
+import SideBar from "./Components/sideBar/sideBar";
 import MainPage from "./Components/MainPage/MainPage";
 import Navbar from "./Components/Home/Navbar";
 
@@ -26,29 +26,11 @@ function App() {
         element={
           <div className="grid grid-rows-10 md:grid-cols-10 md:grid-rows-1 h-screen">
             <div className="row-span-1 md:col-span-2 bg-black">
-              <SideBar
-                mode={mode}
-                setMode={setMode}
-                canvasObjects={canvasObjects}
-                setCanvasObjects={setCanvasObjects}
-                canvasObjectIds={canvasObjectIds}
-                setCanvasObjectIds={setCanvasObjectIds}
-                selectedCanvasObjectId={selectedCanvasObjectId}
-                setSelectedCanvasObjectId={setSelectedCanvasObjectId}
-              />
+              <SideBar />
             </div>
 
             <div className="row-span-9 md:col-span-8 bg-white text-black">
-              <MainPage
-                mode={mode}
-                setMode={setMode}
-                canvasObjects={canvasObjects}
-                setCanvasObjects={setCanvasObjects}
-                canvasObjectIds={canvasObjectIds}
-                setCanvasObjectIds={setCanvasObjectIds}
-                selectedCanvasObjectId={selectedCanvasObjectId}
-                setSelectedCanvasObjectId={setSelectedCanvasObjectId}
-              />
+              <MainPage />
             </div>
           </div>
         }

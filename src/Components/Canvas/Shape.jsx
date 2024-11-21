@@ -1,17 +1,19 @@
 import React, { useState, useEffect, useRef } from "react";
 import TextareaAutosize from "react-textarea-autosize";
-const Shape = ({
-  type,
-  position,
-  size,
-  color,
-  text,
-  onUpdateText,
-  isEditing,
-  onDelete,
-}) => {
+import useCanvas from "../../features/canvas/useCanvas";
+const Shape = ({ id }) => {
   const [editing, setEditing] = useState(isEditing);
   const inputRef = useRef(null);
+  const { shapes, updateShape, removeShape } = useCanvas();
+  const shape = shapes[id];
+
+  const onUpdateText = (text) => {
+    updateShape(id, { text });
+  };
+
+  const onDelete = () => {
+    removeShape(id);
+  };
 
   useEffect(() => {
     if (editing && inputRef.current) {
@@ -39,8 +41,8 @@ const Shape = ({
 
   const commonStyle = {
     position: "absolute",
-    left: position.x,
-    top: position.y,
+    left: shape.position.x,
+    top: shape.position.y,
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
@@ -55,8 +57,8 @@ const Shape = ({
     case "rectangle":
       shapeStyle = {
         ...commonStyle,
-        width: size.width,
-        height: size.height,
+        width: shape.size.width,
+        height: shape.size.height,
         backgroundColor: color,
       };
       break;
@@ -64,8 +66,8 @@ const Shape = ({
     case "circle":
       shapeStyle = {
         ...commonStyle,
-        width: size.width,
-        height: size.width,
+        width: shape.size.width,
+        height: shape.size.width,
         borderRadius: "50%",
         backgroundColor: color,
       };
@@ -74,7 +76,7 @@ const Shape = ({
     case "line":
       shapeStyle = {
         ...commonStyle,
-        width: size.width,
+        width: shape.size.width,
         height: 2,
         backgroundColor: color,
       };
@@ -83,8 +85,8 @@ const Shape = ({
     case "text":
       shapeStyle = {
         ...commonStyle,
-        width: size.width,
-        fontSize: size.height / 4,
+        width: shape.size.width,
+        fontSize: shape.size.height / 4,
         whiteSpace: "pre",
         overflow: "visible",
       };

@@ -1,49 +1,43 @@
-// features/canvas/canvasSlice.js
-
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  canvasObjects: {},
-  canvasObjectIds: [],
-  selectedCanvasObjectId: undefined,
+  shapes: {},
+  shapeIds: [],
+  selectedShapeId: undefined,
 };
 
 const canvasSlice = createSlice({
   name: "canvas",
   initialState,
   reducers: {
-    addCanvasObject(state, action) {
+    addShape(state, action) {
       const obj = action.payload;
-      state.canvasObjects[obj.id] = obj;
-      state.canvasObjectIds.push(obj.id);
+      state.shapes[obj.id] = obj;
+      state.shapeIds.push(obj.id);
     },
-    updateCanvasObject(state, action) {
-      const obj = action.payload;
-      if (state.canvasObjects[obj.id]) {
-        state.canvasObjects[obj.id] = obj;
-      }
+    updateShape(state, action) {
+      const { id, properties } = action.payload;
+      if (!state.shapes[id]) return;
+      state.shapes[id] = {
+        ...state.shapes[id],
+        ...properties,
+      };
     },
-    removeCanvasObject(state, action) {
+    removeShape(state, action) {
       const id = action.payload;
-      delete state.canvasObjects[id];
-      state.canvasObjectIds = state.canvasObjectIds.filter(
-        (objId) => objId !== id
-      );
-      if (state.selectedCanvasObjectId === id) {
-        state.selectedCanvasObjectId = undefined;
+      delete state.shapes[id];
+      state.shapeIds = state.shapeIds.filter((objId) => objId !== id);
+      if (state.selectedShapeId === id) {
+        state.selectedShapeId = undefined;
       }
     },
-    setSelectedCanvasObjectId(state, action) {
-      state.selectedCanvasObjectId = action.payload;
+    setSelectedShapeId(state, action) {
+      state.selectedShapeId = action.payload;
     },
   },
 });
 
-export const {
-  addCanvasObject,
-  updateCanvasObject,
-  removeCanvasObject,
-  setSelectedCanvasObjectId,
-} = canvasSlice.actions;
+export const { addShape, updateShape, removeShape, setSelectedShapeId } =
+  canvasSlice.actions;
 
 export default canvasSlice.reducer;

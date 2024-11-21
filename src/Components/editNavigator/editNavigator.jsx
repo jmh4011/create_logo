@@ -1,13 +1,15 @@
 import React from "react";
+import useMode from "../../features/mode/useMode";
 
-const EditNavigator = ({ setMode }) => {
+const EditNavigator = () => {
+  const { changeMode } = useMode();
   return (
     <div className="bg-white">
-      <button onClick={() => setMode("rectangle")}>Rectangle</button>
-      <button onClick={() => setMode("circle")}>Circle</button>
-      <button onClick={() => setMode("line")}>Line</button>
-      <button onClick={() => setMode("text")}>text</button>
-      <button onClick={() => setMode("move")}>Move Mode</button>
+      <button onClick={() => changeMode("rectangle")}>Rectangle</button>
+      <button onClick={() => changeMode("circle")}>Circle</button>
+      <button onClick={() => changeMode("line")}>Line</button>
+      <button onClick={() => changeMode("text")}>text</button>
+      <button onClick={() => changeMode("move")}>Move Mode</button>
     </div>
   );
 };
