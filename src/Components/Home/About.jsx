@@ -5,16 +5,22 @@ import { ABOUT_TEXT } from "../../constants";
 const About = () => {
   return (
     <div className="border-b border-neutral-900 pb-4">
-      <h1 className="my-20 text-center text-4xl">About Us</h1>
+      <h1 className="my-10 sm:my-8 text-center text-5xl sm:text-5xl font-thin tracking-tight">
+        About Us
+      </h1>
       <div className="flex flex-wrap">
-        <div className="w-full lg:w-1/2 lg:p-8">
-          <div className="flex items-center justify-center">
-            <img src={aboutImg} alt="about" className="rounded-2xl"/>
+        <div className="w-full p-8 flex flex-wrap lg:flex-nowrap items-center">
+          <div className="w-full lg:w-1/2 flex items-center justify-center">
+            <img
+              src={aboutImg}
+              alt="about"
+              className="w-1/3 sm:w-auto rounded-2xl"
+            />
           </div>
-          <div className="w-full lg:w-1/2">
-            <h2 className="flex justify-center lg:justify-start">
-              <p className="my-2 max-w-xl py-6">{ABOUT_TEXT}</p>
-            </h2>
+          <div className="w-full lg:w-1/2 lg:pl-8 flex items-center">
+            <p className="my-4 max-w-2xl py-8 text-lg font-light leading-relaxed tracking-tight text-center lg:text-left">
+              {ABOUT_TEXT}
+            </p>
           </div>
         </div>
       </div>
