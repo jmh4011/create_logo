@@ -14,11 +14,11 @@ const About = () => {
             <img
               src={aboutImg}
               alt="about"
-              className="w-1/3 sm:w-auto rounded-2xl"
+              className="w-full sm:w-auto rounded-2xl"
             />
           </div>
           <div className="w-full lg:w-1/2 lg:pl-8 flex items-center">
-            <p className="my-4 max-w-2xl py-8 text-lg font-light leading-relaxed tracking-tight text-center lg:text-left">
+            <p className="my-4 max-w-2xl py-8 text-xl font-light leading-relaxed tracking-tight text-center lg:text-left">
               {ABOUT_TEXT}
             </p>
           </div>

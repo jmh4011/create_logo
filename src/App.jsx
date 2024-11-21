@@ -6,6 +6,10 @@ import MainPage from "./Components/MainPage/MainPage";
 import Navbar from "./Components/Home/Navbar";
 import Hero from "./Components/Home/Hero";
 import About from "./Components/Home/About";
+import Technologies from "./Components/Home/Technologies";
+import Experience from "./Components/Home/Experience";
+import Galleries from "./Components/Home/Galleries";
+
 function App() {
   const [mode, setMode] = useState("rectangle");
   const [canvasObjects, setCanvasObjects] = useState({});
@@ -23,6 +27,9 @@ function App() {
                 <Navbar />
                 <Hero />
                 <About />
+                <Technologies />
+                <Experience />
+                <Galleries />
               </div>
             </div>
           </div>
