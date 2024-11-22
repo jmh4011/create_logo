@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import React from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
 import "./App.css";
 import SideBar from "./Components/sideBar/sideBar";
 import MainPage from "./Components/MainPage/MainPage";
@@ -10,7 +10,11 @@ import Technologies from "./Components/Home/Technologies";
 import Experience from "./Components/Home/Experience";
 import Galleries from "./Components/Home/Galleries";
 import Contact from "./Components/Home/Contact";
-function App() {
+
+import AdBlockWarning from "./detectAdblock/AdBlockWarning";
+import { useDetectAdBlock } from "adblock-detect-react";
+
+const App = () => {
   return (
     <Routes>
       <Route
@@ -31,22 +35,29 @@ function App() {
           </div>
         }
       />
-      <Route
-        path="/create-logo"
-        element={
-          <div className="grid grid-rows-10 md:grid-cols-10 md:grid-rows-1 h-screen">
-            <div className="row-span-1 md:col-span-2 bg-black">
-              <SideBar />
-            </div>
-
-            <div className="row-span-9 md:col-span-8 bg-white text-black">
-              <MainPage />
-            </div>
-          </div>
-        }
-      />
+      <Route path="/create-logo" element={<CreateLogoPage />} />
+      <Route path="/adblock-warning" element={<AdBlockWarning />} />
     </Routes>
   );
-}
+};
+
+const CreateLogoPage = () => {
+  const adBlockDetected = useDetectAdBlock();
+
+  if (adBlockDetected) {
+    return <Navigate to="/adblock-warning" />;
+  }
+
+  return (
+    <div className="grid grid-rows-10 md:grid-cols-10 md:grid-rows-1 h-screen">
+      <div className="row-span-1 md:col-span-2 bg-black">
+        <SideBar />
+      </div>
+      <div className="row-span-9 md:col-span-8 bg-white text-black">
+        <MainPage />
+      </div>
+    </div>
+  );
+};
 
 export default App;

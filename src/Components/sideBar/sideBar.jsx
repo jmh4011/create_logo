@@ -1,9 +1,7 @@
 import React, {
   useState,
   useEffect,
-  useRef,
   useMemo,
-  useCallback,
 } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../../assets/images/logo.png";
@@ -47,6 +45,7 @@ const SideBar = () => {
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
+  const [showAdModal, setShowAdModal] = useState(false);
   const ICONS_PER_PAGE = 32;
 
   const allIcons = useMemo(() => {
@@ -103,6 +102,10 @@ const SideBar = () => {
 
   const toggleRightSidebar = () => {
     setIsRightSidebarOpen(!isRightSidebarOpen);
+  };
+
+  const handleSaveClick = () => {
+    setShowAdModal(true);
   };
 
   const renderIconGrid = () => (
@@ -270,6 +273,16 @@ const SideBar = () => {
         </Link>
 
         <button
+          className="mt-4 w-full bg-cyan-500 text-black font-medium px-4 py-2 rounded-lg hover:bg-cyan-600 transition md:block hidden"
+          onClick={handleSaveClick}
+        >
+          <div className="flex items-center justify-center">
+            <FaIcons.FaSave className="mr-2" />
+            <span>Save Image</span>
+          </div>
+        </button>
+
+        <button
           className="absolute right-4 top-4 bg-transparent text-white p-3 rounded-lg shadow-md md:hidden"
           onClick={toggleRightSidebar}
         >
@@ -291,9 +304,47 @@ const SideBar = () => {
           >
             <FaIcons.FaTimes />
           </button>
-          <div className="mt-12">{renderSidebarContent()}</div>
+          <button
+            className="w-full bg-cyan-500 text-black font-medium px-4 py-2 rounded-lg hover:bg-cyan-600 transition mt-12"
+            onClick={handleSaveClick}
+          >
+            <div className="flex items-center justify-center">
+              <FaIcons.FaSave className="mr-2" />
+              <span>Save Image</span>
+            </div>
+          </button>
+          <div className="mt-4">{renderSidebarContent()}</div>
         </div>
       </div>
+
+      {showAdModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-full max-h-full overflow-auto">
+            <div className="p-4">
+              <button
+                onClick={() => setShowAdModal(false)}
+                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              >
+                <FaIcons.FaTimes />
+              </button>
+              <div className="hidden md:block">
+                <img
+                  src="https://via.placeholder.com/728x90?text=Desktop+Ad+Demo+(728x90)"
+                  alt="Desktop Ad"
+                  className="w-full h-auto"
+                />
+              </div>
+              <div className="md:hidden">
+                <img
+                  src="https://via.placeholder.com/320x100?text=Mobile+Ad+Demo+(320x100)"
+                  alt="Mobile Ad"
+                  className="w-full h-auto"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
