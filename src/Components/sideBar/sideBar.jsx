@@ -151,7 +151,7 @@ const SideBar = () => {
           onClick={() => setIsLayersOpen(!isLayersOpen)}
           className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
         >
-          <span>Layers</span>
+          <span className="text-xl font-medium">Layers</span>
           <span
             className={`transform transition-transform ${
               isLayersOpen ? "rotate-180" : ""
@@ -195,7 +195,7 @@ const SideBar = () => {
           onClick={() => setIsToolsOpen(!isToolsOpen)}
           className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
         >
-          <span>Tools</span>
+          <span className="text-xl font-medium">Tools</span>
           <span
             className={`transform transition-transform ${
               isToolsOpen ? "rotate-180" : ""
@@ -234,7 +234,7 @@ const SideBar = () => {
           onClick={() => setIsIconsOpen(!isIconsOpen)}
           className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
         >
-          <span>Icons</span>
+          <span className="text-xl font-medium">Icons</span>
           <span
             className={`transform transition-transform ${
               isIconsOpen ? "rotate-180" : ""
@@ -264,7 +264,7 @@ const SideBar = () => {
 
   return (
     <>
-      <div className="h-auto md:h-20 min-h-0 max-h-[80vh] flex flex-col items-start p-4 bg-black text-white">
+      <div className="h-32 md:h-20 min-h-0 max-h-[60vh] flex flex-col items-start p-4 bg-black text-white">
         <Link to="/">
           <img src={Logo} alt="Logo" className="h-8 md:h-12 lg:h-16 w-auto" />
         </Link>
