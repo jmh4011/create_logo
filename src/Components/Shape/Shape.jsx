@@ -16,10 +16,10 @@ const Shape = ({ id }) => {
     selectShape
   );
 
-  const { baseStyle, handleStyles } = useShapeStyles(shape, isSelected);
+  const { shapeStyle, handleStyles } = useShapeStyles(shape, isSelected);
 
   return (
-    <div style={baseStyle} onMouseDown={(e) => handleMouseDown(e, "center")}>
+    <div style={shapeStyle} onMouseDown={(e) => handleMouseDown(e, "center")}>
       {/* 텍스트 도형의 경우 텍스트 표시 */}
       {shape.type === "text" && (
         <div

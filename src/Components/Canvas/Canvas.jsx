@@ -63,8 +63,8 @@ const Canvas = ({}) => {
         addShape({
           id: id,
           type: mode,
-          position: { x: startX, y: startY },
-          endPosition: { x: startX, y: startY },
+          startPoint: { x: startX, y: startY },
+          endPoint: { x: startX, y: startY },
           thickness: 5,
           color: "rgb(0,0,0)",
         });
@@ -104,8 +104,8 @@ const Canvas = ({}) => {
         addShape({
           id: id,
           type: mode,
-          position: { x: startX, y: startY },
-          endPosition: { x: startX + 100, y: startY },
+          startPoint: { x: startX, y: startY },
+          endPoint: { x: startX + 100, y: startY },
           thickness: 5,
           color: "rgb(0,0,0)",
         });
