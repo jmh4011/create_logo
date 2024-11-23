@@ -1,8 +1,4 @@
-import React, {
-  useState,
-  useEffect,
-  useMemo,
-} from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../../assets/images/logo.png";
 import useCanvas from "../../features/canvas/useCanvas";
@@ -110,7 +106,7 @@ const SideBar = () => {
 
   const renderIconGrid = () => (
     <div
-      className="h-80 overflow-y-auto"
+      className="h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
       onScroll={(e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
         if (scrollHeight - scrollTop <= clientHeight * 1.5) {
@@ -169,7 +165,7 @@ const SideBar = () => {
             isLayersOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="overflow-y-auto overflow-x-hidden w-full h-80 border border-white mt-2">
+          <div className="overflow-y-auto overflow-x-hidden w-full h-80 border border-white mt-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
             {shapeIds.map((id) => (
               <div
                 key={id}
@@ -267,7 +263,7 @@ const SideBar = () => {
 
   return (
     <>
-      <div className="h-32 md:h-20 min-h-0 max-h-[60vh] flex flex-col items-start p-4 bg-black text-white">
+      <div className="h-screen flex flex-col items-start p-4 bg-black text-white overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
         <Link to="/">
           <img src={Logo} alt="Logo" className="h-8 md:h-12 lg:h-16 w-auto" />
         </Link>
@@ -289,11 +285,13 @@ const SideBar = () => {
           <FaIcons.FaBars className="text-xl" />
         </button>
 
-        <div className="hidden md:block w-full">{renderSidebarContent()}</div>
+        <div className="hidden md:block w-full h-full max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+          {renderSidebarContent()}
+        </div>
       </div>
 
       <div
-        className={`md:hidden fixed right-0 top-0 h-full w-full bg-black transform transition-transform duration-300 ease-in-out z-50 overflow-y-auto ${
+        className={`md:hidden fixed right-0 top-0 h-full w-full bg-black transform transition-transform duration-300 ease-in-out z-50 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 ${
           isRightSidebarOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -319,7 +317,7 @@ const SideBar = () => {
 
       {showAdModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-full max-h-full overflow-auto">
+          <div className="bg-white rounded-lg shadow-xl max-w-full max-h-full overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
             <div className="p-4">
               <button
                 onClick={() => setShowAdModal(false)}

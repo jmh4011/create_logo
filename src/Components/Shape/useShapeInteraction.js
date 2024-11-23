@@ -4,6 +4,7 @@ const useShapeInteraction = (shape, updateShape, selectShape) => {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeType, setResizeType] = useState(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dragShapeStart, setDragShapeStart] = useState({ x: 0, y: 0 });
 
   const handleMouseDown = (e, type) => {
     e.stopPropagation();
@@ -11,6 +12,10 @@ const useShapeInteraction = (shape, updateShape, selectShape) => {
     setIsResizing(true);
     setResizeType(type);
     setDragStart({ x: e.clientX, y: e.clientY });
+    setDragShapeStart({
+      x: shape.position.x - e.clientX,
+      y: shape.position.y - e.clientY,
+    });
     selectShape(shape.id);
   };
 
@@ -21,13 +26,16 @@ const useShapeInteraction = (shape, updateShape, selectShape) => {
       const deltaX = e.clientX - dragStart.x;
       const deltaY = e.clientY - dragStart.y;
 
+      const dragPointX = e.clientX + dragShapeStart.x;
+      const dragPointY = e.clientY + dragShapeStart.y;
+
       let newPosition = { ...shape.position };
       let newSize = { ...shape.size };
 
       switch (resizeType) {
         case "center":
-          newPosition.x += deltaX;
-          newPosition.y += deltaY;
+          newPosition.x = dragPointX;
+          newPosition.y = dragPointY;
           break;
 
         case "left":
