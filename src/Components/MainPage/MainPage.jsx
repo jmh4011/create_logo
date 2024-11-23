@@ -1,6 +1,6 @@
 import React from "react";
 import Canvas from "../Canvas/Canvas";
-import EditNavigator from "../EditNavigator/EditNavigator";
+import Footer from "../Footer/Footer";
 
 const MainPage = () => {
   return (
@@ -9,7 +9,7 @@ const MainPage = () => {
         <Canvas />
       </div>
       <div className="row-span-1 h-full w-full bg-white">
-        <EditNavigator />
+        <Footer />
       </div>
     </div>
   );
