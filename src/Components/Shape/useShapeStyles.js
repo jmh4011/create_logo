@@ -7,51 +7,88 @@ const useShapeStyles = (shape, isSelected) => {
     height: shape.size.height,
     backgroundColor: shape.color,
     border: isSelected ? "2px solid blue" : "1px solid black",
-    cursor: "move",
+    cursor: isSelected ? "move" : "default",
+    boxSizing: "border-box",
   };
+
+  const handleSize = 10;
+  const halfHandleSize = handleSize / 2;
 
   const handleStyle = {
     position: "absolute",
-    width: "10px",
-    height: "10px",
+    width: `${handleSize}px`,
+    height: `${handleSize}px`,
     backgroundColor: "blue",
     zIndex: 2,
   };
 
-  const getHandleStyles = () => ({
-    top: {
+  const handleStyles = {
+    topLeft: {
       ...handleStyle,
-      top: "-5px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      cursor: "n-resize",
+      top: -halfHandleSize,
+      left: -halfHandleSize,
+      cursor: "nwse-resize",
     },
-    bottom: {
+    topRight: {
       ...handleStyle,
-      bottom: "-5px",
-      left: "50%",
-      transform: "translateX(-50%)",
-      cursor: "s-resize",
+      top: -halfHandleSize,
+      right: -halfHandleSize,
+      cursor: "nesw-resize",
+    },
+    bottomLeft: {
+      ...handleStyle,
+      bottom: -halfHandleSize,
+      left: -halfHandleSize,
+      cursor: "nesw-resize",
+    },
+    bottomRight: {
+      ...handleStyle,
+      bottom: -halfHandleSize,
+      right: -halfHandleSize,
+      cursor: "nwse-resize",
     },
     left: {
       ...handleStyle,
       top: "50%",
-      left: "-5px",
+      left: -halfHandleSize,
       transform: "translateY(-50%)",
-      cursor: "w-resize",
+      cursor: "ew-resize",
     },
     right: {
       ...handleStyle,
       top: "50%",
-      right: "-5px",
+      right: -halfHandleSize,
       transform: "translateY(-50%)",
-      cursor: "e-resize",
+      cursor: "ew-resize",
     },
-  });
+    top: {
+      ...handleStyle,
+      left: "50%",
+      top: -halfHandleSize,
+      transform: "translateX(-50%)",
+      cursor: "ns-resize",
+    },
+    bottom: {
+      ...handleStyle,
+      left: "50%",
+      bottom: -halfHandleSize,
+      transform: "translateX(-50%)",
+      cursor: "ns-resize",
+    },
+    center: {
+      position: "absolute",
+      top: 0,
+      left: 0,
+      width: "100%",
+      height: "100%",
+      cursor: "move",
+      backgroundColor: "transparent",
+    },
+  };
 
   return {
     baseStyle,
-    getHandleStyles,
+    handleStyles,
   };
 };
 

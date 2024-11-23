@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const useShapeInteraction = (shape, updateShape, selectShape) => {
   const [isResizing, setIsResizing] = useState(false);
@@ -7,83 +7,113 @@ const useShapeInteraction = (shape, updateShape, selectShape) => {
 
   const handleMouseDown = (e, type) => {
     e.stopPropagation();
+    e.preventDefault(); // 기본 동작 방지
     setIsResizing(true);
     setResizeType(type);
     setDragStart({ x: e.clientX, y: e.clientY });
     selectShape(shape.id);
-
-    // 전역 이벤트 리스너 추가
-    window.addEventListener("mousemove", handleMouseMove);
-    window.addEventListener("mouseup", handleMouseUp);
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = useCallback(
+    (e) => {
+      if (!isResizing) return;
+
+      const deltaX = e.clientX - dragStart.x;
+      const deltaY = e.clientY - dragStart.y;
+
+      let newPosition = { ...shape.position };
+      let newSize = { ...shape.size };
+
+      switch (resizeType) {
+        case "center":
+          newPosition.x += deltaX;
+          newPosition.y += deltaY;
+          break;
+
+        case "left":
+          newPosition.x += deltaX;
+          newSize.width -= deltaX;
+          break;
+
+        case "right":
+          newSize.width += deltaX;
+          break;
+
+        case "top":
+          newPosition.y += deltaY;
+          newSize.height -= deltaY;
+          break;
+
+        case "bottom":
+          newSize.height += deltaY;
+          break;
+
+        case "top-left":
+          newPosition.x += deltaX;
+          newPosition.y += deltaY;
+          newSize.width -= deltaX;
+          newSize.height -= deltaY;
+          break;
+
+        case "top-right":
+          newPosition.y += deltaY;
+          newSize.width += deltaX;
+          newSize.height -= deltaY;
+          break;
+
+        case "bottom-left":
+          newPosition.x += deltaX;
+          newSize.width -= deltaX;
+          newSize.height += deltaY;
+          break;
+
+        case "bottom-right":
+          newSize.width += deltaX;
+          newSize.height += deltaY;
+          break;
+
+        default:
+          break;
+      }
+
+      // 최소 크기 제한 (옵션)
+      const minSize = 10;
+      newSize.width = Math.max(newSize.width, minSize);
+      newSize.height = Math.max(newSize.height, minSize);
+
+      updateShape(shape.id, {
+        position: newPosition,
+        size: newSize,
+      });
+
+      setDragStart({ x: e.clientX, y: e.clientY });
+    },
+    [isResizing, resizeType, dragStart, shape, updateShape]
+  );
+
+  const handleMouseUp = useCallback(() => {
     if (!isResizing) return;
-
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
-
-    if (resizeType === "center") {
-      updateShape(shape.id, {
-        position: {
-          x: shape.position.x + deltaX,
-          y: shape.position.y + deltaY,
-        },
-      });
-    } else if (resizeType === "left") {
-      updateShape(shape.id, {
-        size: {
-          width: shape.size.width - deltaX,
-          height: shape.size.height,
-        },
-        position: {
-          x: shape.position.x + deltaX,
-          y: shape.position.y,
-        },
-      });
-    } else if (resizeType === "right") {
-      updateShape(shape.id, {
-        size: {
-          width: shape.size.width + deltaX,
-          height: shape.size.height,
-        },
-      });
-    } else if (resizeType === "top") {
-      updateShape(shape.id, {
-        size: {
-          width: shape.size.width,
-          height: shape.size.height - deltaY,
-        },
-        position: {
-          x: shape.position.x,
-          y: shape.position.y + deltaY,
-        },
-      });
-    } else if (resizeType === "bottom") {
-      updateShape(shape.id, {
-        size: {
-          width: shape.size.width,
-          height: shape.size.height + deltaY,
-        },
-      });
-    }
-
-    setDragStart({ x: e.clientX, y: e.clientY });
-  };
-
-  const handleMouseUp = () => {
     setIsResizing(false);
     setResizeType(null);
+  }, [isResizing]);
 
-    // 전역 이벤트 리스너 제거
-    window.removeEventListener("mousemove", handleMouseMove);
-    window.removeEventListener("mouseup", handleMouseUp);
-  };
+  useEffect(() => {
+    if (isResizing) {
+      window.addEventListener("mousemove", handleMouseMove);
+      window.addEventListener("mouseup", handleMouseUp);
+    } else {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isResizing, handleMouseMove, handleMouseUp]);
 
   return {
     handleMouseDown,
-    handleMouseMove,
-    handleMouseUp,
   };
 };
 
