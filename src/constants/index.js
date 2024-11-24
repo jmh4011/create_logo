@@ -1,8 +1,3 @@
-import project1 from "../assets/images/project-1.jpg";
-import project2 from "../assets/images/project-2.jpg";
-import project3 from "../assets/images/project-3.jpg";
-import project4 from "../assets/images/project-4.jpg";
-
 export const HERO_CONTENT = `I developed a unique logo design website entirely using React.js, focusing on providing a seamless and user-friendly experience. What sets it apart from other platforms is its commitment to being completely free, with no hidden costs or premium features. The website is designed to help individuals and small businesses create professional-quality logos without worrying about budget constraints. By combining modern web technologies and intuitive design, the platform ensures that anyone, regardless of their technical expertise, can easily craft the perfect logo. My goal is to empower users with a truly free tool that makes branding accessible to everyone.`;
 
 export const ABOUT_TEXT = `1. 100% Free Forever

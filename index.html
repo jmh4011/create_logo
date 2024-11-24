@@ -2,11 +2,79 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="icon" type="image/svg+xml" href="/src/assets/images/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8228812071656117"
-     crossorigin="anonymous"></script>
+    
+    <!-- Default Meta Tags -->
+    <title>LogoHub</title>
+    <meta name="description" content="" />
+    <meta name="keywords" content="" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="" />
+    <meta property="og:description" content="" />
+    
+    <!-- Twitter -->
+    <meta property="twitter:title" content="" />
+    <meta property="twitter:description" content="" />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://logohub.shop/" />
+    
+    <!-- Dynamic Metadata Script -->
+    <script>
+      const metadata = {
+        en: {
+          title: "LogoHub - Free Logo Creation Website",
+          description: "Create professional logos for free with LogoHub. Easy-to-use online logo maker with customizable templates and design tools.",
+          keywords: "logo maker, free logo creator, online logo design, business logo, brand identity, logo generator"
+        },
+        ko: {
+          title: "LogoHub - 무료 로고 제작 웹사이트",
+          description: "LogoHub에서 전문가 수준의 로고를 무료로 만들어보세요. 사용하기 쉬운 템플릿과 디자인 도구를 제공합니다.",
+          keywords: "로고 제작 사이트, 무료 로고 제작, 온라인 로고 디자인, 비즈니스 로고, 브랜드 정체성, 로고 생성기"
+        },
+        ja: {
+          title: "LogoHub - 無料ロゴ作成ウェブサイト",
+          description: "LogoHubでプロフェッショナルなロゴを無料で作成できます。使いやすいテンプレートとデザインツールを提供しています。",
+          keywords: "ロゴ作成, 無料ロゴ作成, オンラインロゴデザイン, ビジネスロゴ, ブランドアイデンティティ, ロゴジェネレーター"
+        },
+        zh: {
+          title: "LogoHub - 免费Logo制作网站",
+          description: "通过LogoHub免费创建专业Logo。易于使用的在线Logo设计工具和可自定义的模板。",
+          keywords: "Logo制作, 免费Logo制作, 在线Logo设计, 商务Logo, 品牌识别, Logo生成器"
+        },
+      };
+
+      const setMetadata = (lang) => {
+        const selectedLang = metadata[lang] || metadata["en"]; 
+        document.title = selectedLang.title;
+
+        const descriptionMeta = document.querySelector('meta[name="description"]');
+        if (descriptionMeta) descriptionMeta.setAttribute("content", selectedLang.description);
+
+        const keywordsMeta = document.querySelector('meta[name="keywords"]');
+        if (keywordsMeta) keywordsMeta.setAttribute("content", selectedLang.keywords);
+
+        const ogTitleMeta = document.querySelector('meta[property="og:title"]');
+        if (ogTitleMeta) ogTitleMeta.setAttribute("content", selectedLang.title);
+
+        const ogDescriptionMeta = document.querySelector('meta[property="og:description"]');
+        if (ogDescriptionMeta) ogDescriptionMeta.setAttribute("content", selectedLang.description);
+
+        const twitterTitleMeta = document.querySelector('meta[property="twitter:title"]');
+        if (twitterTitleMeta) twitterTitleMeta.setAttribute("content", selectedLang.title);
+
+        const twitterDescriptionMeta = document.querySelector('meta[property="twitter:description"]');
+        if (twitterDescriptionMeta) twitterDescriptionMeta.setAttribute("content", selectedLang.description);
+      };
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const userLang = navigator.language.split("-")[0]; // 언어 코드 추출 (e.g., "ko", "en", "ja", "zh")
+        setMetadata(userLang);
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
