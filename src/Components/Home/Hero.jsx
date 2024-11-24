@@ -4,13 +4,24 @@ import { HERO_CONTENT } from "../../constants/index";
 import image1 from "../../assets/images/image1.jpg";
 import { Helmet } from "react-helmet";
 
+const getLanguage = () => {
+  const lang = navigator.language || navigator.userLanguage;
+  if (lang.startsWith("ko")) return "ko";
+  if (lang.startsWith("ja")) return "ja";
+  if (lang.startsWith("zh")) return "zh";
+  return "en"; 
+};
+
 const Hero = () => {
+  const currentLang = getLanguage(); 
+  const content = HERO_CONTENT[currentLang]; 
+
   return (
     <>
       <Helmet>
         <title>LogoHub - Home</title>
       </Helmet>
-      <div className="border-b border-neutral-900 pb-4 lg:mb-35">
+      <div className="border-b border-neutral-900 pb-4 lg:mb-35 mt-32">
         <div className="flex flex-wrap">
           <div className="w-full lg:w-1/2">
             <div className="flex flex-col items-center lg:items-start">
@@ -36,7 +47,7 @@ const Hero = () => {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="my-4 max-w-2xl py-8 text-xl font-light leading-relaxed tracking-tight text-center lg:text-left"
               >
-                {HERO_CONTENT}
+                {content}
               </motion.p>
               <motion.button
                 initial={{ opacity: 0, scale: 0.8 }}
