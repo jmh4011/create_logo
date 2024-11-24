@@ -17,11 +17,11 @@ const CreateLogoPage = () => {
       <Helmet>
         <title>LogoHub - Create Logo</title>
       </Helmet>
-      <div className="grid grid-rows-10 md:grid-cols-10 md:grid-rows-1 h-screen">
-        <div className="row-span-1 md:col-span-2 bg-black">
+      <div className="h-screen w-screen grid grid-cols-10">
+        <div className="col-span-2 bg-black h-full">
           <SideBar />
         </div>
-        <div className="row-span-9 md:col-span-8 bg-white text-black">
+        <div className="col-span-8 bg-white text-black h-full w-full">
           <MainPage />
         </div>
       </div>
@@ -29,4 +29,4 @@ const CreateLogoPage = () => {
   );
 };
 
-export default CreateLogoPage; // default export
+export default CreateLogoPage;

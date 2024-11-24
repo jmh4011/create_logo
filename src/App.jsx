@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { Helmet } from "react-helmet-async";
 import "./App.css";
 import Navbar from "./Components/Home/Navbar";
@@ -7,6 +7,7 @@ import routes from "./routes";
 
 const App = () => {
   const [currentTitle, setCurrentTitle] = useState("Home");
+  const location = useLocation(); // 현재 경로를 확인하기 위해 추가
 
   useEffect(() => {
     const sections = ["home", "about", "technologies", "experience", "galleries", "contact"];
@@ -42,8 +43,8 @@ const App = () => {
       <Helmet>
         <title>LogoHub - {currentTitle}</title>
       </Helmet>
-      <Navbar currentTitle={currentTitle} />
-      <main className="container mx-auto px-4 lg:px-8">
+      {location.pathname !== "/create-logo" && <Navbar currentTitle={currentTitle} />}
+      <main className={`${location.pathname !== "/create-logo" ? "container mx-auto px-4 lg:px-8" : ""}`}>
         <Routes>
           {routes.map(({ path, element }, index) => (
             <Route key={index} path={path} element={element} />

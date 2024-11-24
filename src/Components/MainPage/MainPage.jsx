@@ -4,11 +4,11 @@ import Footer from "../Footer/Footer";
 
 const MainPage = () => {
   return (
-    <div className="h-full w-full grid grid-rows-5 bg-white">
-      <div className="row-span-4 h-full w-full bg-white">
+    <div className="h-full w-full grid grid-rows-5">
+      <div className="row-span-4">
         <Canvas />
       </div>
-      <div className="row-span-1 h-full w-full bg-white">
+      <div className="row-span-1">
         <Footer />
       </div>
     </div>
