@@ -263,29 +263,24 @@ const SideBar = () => {
 
   return (
     <>
-      <div className="h-screen flex flex-col items-start p-4 bg-black text-white overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-        <Link to="/">
-          <img src={Logo} alt="Logo" className="h-8 md:h-12 lg:h-16 w-auto" />
-        </Link>
+      <div className="h-screen flex flex-col bg-black text-white overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+        <div className="p-2">
+          <Link to="/">
+            <img src={Logo} alt="Logo" className="h-8 md:h-12 lg:h-16 w-auto" />
+          </Link>
 
-        <button
-          className="mt-4 w-full bg-cyan-500 text-black font-medium px-4 py-2 rounded-lg hover:bg-cyan-600 transition md:block hidden"
-          onClick={handleSaveClick}
-        >
-          <div className="flex items-center justify-center">
-            <FaIcons.FaSave className="mr-2" />
-            <span>Save Image</span>
-          </div>
-        </button>
+          <button
+            className="mt-4 w-full bg-cyan-500 text-black font-medium px-4 py-2 rounded-lg hover:bg-cyan-600 transition md:block hidden"
+            onClick={handleSaveClick}
+          >
+            <div className="flex items-center justify-center">
+              <FaIcons.FaSave className="mr-2" />
+              <span>Save Image</span>
+            </div>
+          </button>
+        </div>
 
-        <button
-          className="absolute right-4 top-4 bg-transparent text-white p-3 rounded-lg shadow-md md:hidden"
-          onClick={toggleRightSidebar}
-        >
-          <FaIcons.FaBars className="text-xl" />
-        </button>
-
-        <div className="hidden md:block w-full h-full max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+        <div className="hidden md:block w-full h-full max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 px-2">
           {renderSidebarContent()}
         </div>
       </div>

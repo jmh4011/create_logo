@@ -1,61 +1,56 @@
-import React from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import "./App.css";
-import SideBar from "./Components/sideBar/sideBar";
-import MainPage from "./Components/MainPage/MainPage";
 import Navbar from "./Components/Home/Navbar";
-import Hero from "./Components/Home/Hero";
-import About from "./Components/Home/About";
-import Technologies from "./Components/Home/Technologies";
-import Experience from "./Components/Home/Experience";
-import Galleries from "./Components/Home/Galleries";
-import Contact from "./Components/Home/Contact";
-
-import AdBlockWarning from "./detectAdblock/AdBlockWarning";
-import { useDetectAdBlock } from "adblock-detect-react";
+import routes from "./routes";
 
 const App = () => {
+  const [currentTitle, setCurrentTitle] = useState("Home");
+  const location = useLocation(); // 현재 경로를 확인하기 위해 추가
+
+  useEffect(() => {
+    const sections = ["home", "about", "technologies", "experience", "galleries", "contact"];
+    const observers = [];
+
+    sections.forEach((sectionId) => {
+      const element = document.getElementById(sectionId);
+      if (!element) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const title = sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+              setCurrentTitle(title);
+            }
+          });
+        },
+        { threshold: 0.5 }
+      );
+
+      observer.observe(element);
+      observers.push(observer);
+    });
+
+    return () => {
+      observers.forEach((observer) => observer.disconnect());
+    };
+  }, []);
+
   return (
-    <Routes>
-      <Route
-        path="/"
-        element={
-          <div className="overflow-x-hidden text-neutral-300 antialiased selection:bg-cyan-300 selection:text-cyan-900 bg-black">
-            <div className="relative w-screen">
-              <div className="container mx-auto px-8">
-                <Navbar />
-                <Hero />
-                <About />
-                <Technologies />
-                <Experience />
-                <Galleries />
-                <Contact />
-              </div>
-            </div>
-          </div>
-        }
-      />
-      <Route path="/create-logo" element={<CreateLogoPage />} />
-      <Route path="/adblock-warning" element={<AdBlockWarning />} />
-    </Routes>
-  );
-};
-
-const CreateLogoPage = () => {
-  const adBlockDetected = useDetectAdBlock();
-
-  if (adBlockDetected) {
-    return <Navigate to="/adblock-warning" />;
-  }
-
-  return (
-    <div className="grid grid-rows-10 md:grid-cols-10 md:grid-rows-1 h-screen">
-      <div className="row-span-1 md:col-span-2 bg-black">
-        <SideBar />
-      </div>
-      <div className="row-span-9 md:col-span-8 bg-white text-black">
-        <MainPage />
-      </div>
+    <div className="bg-black text-neutral-300 overflow-x-hidden antialiased">
+      <Helmet>
+        <title>LogoHub - {currentTitle}</title>
+      </Helmet>
+      {location.pathname !== "/create-logo" && <Navbar currentTitle={currentTitle} />}
+      <main className={`${location.pathname !== "/create-logo" ? "container mx-auto px-4 lg:px-8" : ""}`}>
+        <Routes>
+          {routes.map(({ path, element }, index) => (
+            <Route key={index} path={path} element={element} />
+          ))}
+        </Routes>
+      </main>
     </div>
   );
 };
