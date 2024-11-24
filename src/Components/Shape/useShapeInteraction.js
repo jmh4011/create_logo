@@ -4,17 +4,29 @@ const useShapeInteraction = (shape, updateShape, selectShape) => {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeType, setResizeType] = useState(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [dragShapeStart, setDragShapeStart] = useState({ x: 0, y: 0 });
+  const [dragShapePoint, setDragShapePoint] = useState({ x: 0, y: 0 });
+  const [initialShapeState, setInitialShapeState] = useState({
+    position: { x: 0, y: 0 },
+    size: { x: 0, y: 0 },
+    startPoint: { x: 0, y: 0 },
+    endPoint: { x: 0, y: 0 },
+  });
 
   const handleMouseDown = (e, type) => {
     e.stopPropagation();
-    e.preventDefault(); // 기본 동작 방지
+    e.preventDefault();
     setIsResizing(true);
     setResizeType(type);
     setDragStart({ x: e.clientX, y: e.clientY });
-    setDragShapeStart({
-      x: shape.position.x - e.clientX,
-      y: shape.position.y - e.clientY,
+    setDragShapePoint({
+      x: e.clientX - (shape.position?.x || 0),
+      y: e.clientY - (shape.position?.y || 0),
+    });
+    setInitialShapeState({
+      position: { ...shape.position },
+      size: { ...shape.size },
+      startPoint: { ...shape.startPoint },
+      endPoint: { ...shape.endPoint },
     });
     selectShape(shape.id);
   };
@@ -26,77 +38,132 @@ const useShapeInteraction = (shape, updateShape, selectShape) => {
       const deltaX = e.clientX - dragStart.x;
       const deltaY = e.clientY - dragStart.y;
 
-      const dragPointX = e.clientX + dragShapeStart.x;
-      const dragPointY = e.clientY + dragShapeStart.y;
+      let newPosition = { ...initialShapeState.position };
+      let newSize = { ...initialShapeState.size };
+      let newStartPoint = { ...initialShapeState.startPoint };
+      let newEndPoint = { ...initialShapeState.endPoint };
 
-      let newPosition = { ...shape.position };
-      let newSize = { ...shape.size };
+      if (shape.type === "line") {
+        const offsetX = e.clientX - dragStart.x;
+        const offsetY = e.clientY - dragStart.y;
+        switch (resizeType) {
+          case "center":
+            newStartPoint.x = initialShapeState.startPoint.x + offsetX;
+            newStartPoint.y = initialShapeState.startPoint.y + offsetY;
+            newEndPoint.x = initialShapeState.endPoint.x + offsetX;
+            newEndPoint.y = initialShapeState.endPoint.y + offsetY;
 
-      switch (resizeType) {
-        case "center":
-          newPosition.x = dragPointX;
-          newPosition.y = dragPointY;
-          break;
+            break;
 
-        case "left":
-          newPosition.x += deltaX;
-          newSize.width -= deltaX;
-          break;
+          case "startPoint":
+            newStartPoint.x = initialShapeState.startPoint.x + offsetX;
+            newStartPoint.y = initialShapeState.startPoint.y + offsetY;
+            break;
 
-        case "right":
-          newSize.width += deltaX;
-          break;
+          case "endPoint":
+            newEndPoint.x = initialShapeState.endPoint.x + offsetX;
+            newEndPoint.y = initialShapeState.endPoint.y + offsetY;
+            break;
 
-        case "top":
-          newPosition.y += deltaY;
-          newSize.height -= deltaY;
-          break;
+          default:
+            break;
+        }
 
-        case "bottom":
-          newSize.height += deltaY;
-          break;
+        updateShape(shape.id, {
+          startPoint: newStartPoint,
+          endPoint: newEndPoint,
+        });
+      } else {
+        switch (resizeType) {
+          case "center":
+            newPosition.x = e.clientX - dragShapePoint.x;
+            newPosition.y = e.clientY - dragShapePoint.y;
+            break;
 
-        case "top-left":
-          newPosition.x += deltaX;
-          newPosition.y += deltaY;
-          newSize.width -= deltaX;
-          newSize.height -= deltaY;
-          break;
+          case "left":
+            newPosition.x = Math.min(
+              e.clientX - dragShapePoint.x,
+              initialShapeState.position.x + initialShapeState.size.x
+            );
+            newSize.x = initialShapeState.size.x - deltaX;
+            break;
 
-        case "top-right":
-          newPosition.y += deltaY;
-          newSize.width += deltaX;
-          newSize.height -= deltaY;
-          break;
+          case "right":
+            newSize.x = initialShapeState.size.x + deltaX;
+            break;
 
-        case "bottom-left":
-          newPosition.x += deltaX;
-          newSize.width -= deltaX;
-          newSize.height += deltaY;
-          break;
+          case "top":
+            newPosition.y = Math.min(
+              e.clientY - dragShapePoint.y,
+              initialShapeState.position.y + initialShapeState.size.y
+            );
+            newSize.y = initialShapeState.size.y - deltaY;
+            break;
 
-        case "bottom-right":
-          newSize.width += deltaX;
-          newSize.height += deltaY;
-          break;
+          case "bottom":
+            newSize.y = initialShapeState.size.y + deltaY;
+            break;
 
-        default:
-          break;
+          case "top-left":
+            newPosition.x = Math.min(
+              e.clientX - dragShapePoint.x,
+              initialShapeState.position.x + initialShapeState.size.x
+            );
+            newPosition.y = Math.min(
+              e.clientY - dragShapePoint.y,
+              initialShapeState.position.y + initialShapeState.size.y
+            );
+            newSize.x = initialShapeState.size.x - deltaX;
+            newSize.y = initialShapeState.size.y - deltaY;
+            break;
+
+          case "top-right":
+            newPosition.y = Math.min(
+              e.clientY - dragShapePoint.y,
+              initialShapeState.position.y + initialShapeState.size.y
+            );
+            newSize.x = initialShapeState.size.x + deltaX;
+            newSize.y = initialShapeState.size.y - deltaY;
+            break;
+
+          case "bottom-left":
+            newPosition.x = Math.min(
+              e.clientX - dragShapePoint.x,
+              initialShapeState.position.x + initialShapeState.size.x
+            );
+            newSize.x = initialShapeState.size.x - deltaX;
+            newSize.y = initialShapeState.size.y + deltaY;
+            break;
+
+          case "bottom-right":
+            newSize.x = initialShapeState.size.x + deltaX;
+            newSize.y = initialShapeState.size.y + deltaY;
+            break;
+
+          default:
+            break;
+        }
+
+        const minSize = 10;
+        newSize.x = Math.max(newSize.x, minSize);
+        newSize.y = Math.max(newSize.y, minSize);
+
+        updateShape(shape.id, {
+          position: newPosition,
+          size: newSize,
+        });
       }
-
-      // 최소 크기 제한 (옵션)
-      const minSize = 10;
-      newSize.width = Math.max(newSize.width, minSize);
-      newSize.height = Math.max(newSize.height, minSize);
-
-      updateShape(shape.id, {
-        position: newPosition,
-        size: newSize,
-      });
-
-      setDragStart({ x: e.clientX, y: e.clientY });
     },
-    [isResizing, resizeType, dragStart, shape, updateShape]
+    [
+      isResizing,
+      resizeType,
+      dragStart,
+      dragShapePoint,
+      initialShapeState,
+      shape.id,
+      shape.type,
+      updateShape,
+    ]
   );
 
   const handleMouseUp = useCallback(() => {

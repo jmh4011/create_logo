@@ -20,13 +20,12 @@ const Shape = ({ id }) => {
 
   return (
     <div style={shapeStyle} onMouseDown={(e) => handleMouseDown(e, "center")}>
-      {/* 텍스트 도형의 경우 텍스트 표시 */}
       {shape.type === "text" && (
         <div
           style={{
             width: "100%",
             height: "100%",
-            fontSize: shape.size.height / 4,
+            fontSize: shape.size.y / 4,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -37,8 +36,7 @@ const Shape = ({ id }) => {
         </div>
       )}
 
-      {/* 선택된 도형에만 핸들 표시 */}
-      {isSelected && (
+      {isSelected && shape.type !== "line" && (
         <>
           {/* 꼭짓점 핸들 */}
           <div
@@ -57,7 +55,6 @@ const Shape = ({ id }) => {
             style={handleStyles.bottomRight}
             onMouseDown={(e) => handleMouseDown(e, "bottom-right")}
           />
-
           {/* 측면 핸들 */}
           <div
             style={handleStyles.left}
@@ -74,6 +71,21 @@ const Shape = ({ id }) => {
           <div
             style={handleStyles.bottom}
             onMouseDown={(e) => handleMouseDown(e, "bottom")}
+          />
+        </>
+      )}
+
+      {isSelected && shape.type === "line" && (
+        <>
+          {/* 선의 시작점 핸들 */}
+          <div
+            style={handleStyles.startPoint}
+            onMouseDown={(e) => handleMouseDown(e, "startPoint")}
+          />
+          {/* 선의 끝점 핸들 */}
+          <div
+            style={handleStyles.endPoint}
+            onMouseDown={(e) => handleMouseDown(e, "endPoint")}
           />
         </>
       )}

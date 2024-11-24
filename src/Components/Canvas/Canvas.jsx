@@ -4,11 +4,11 @@ import DetailMenu from "./DetailMenu";
 import useCanvas from "../../features/canvas/useCanvas";
 import useMode from "../../features/mode/useMode";
 
-const Canvas = ({}) => {
+const Canvas = () => {
   const {
     shapes,
     shapeIds,
-    selectShapeId,
+    selectedShapeId,
     addShape,
     updateShape,
     removeShape,
@@ -55,7 +55,7 @@ const Canvas = ({}) => {
           id: id,
           type: mode,
           position: { x: startX, y: startY },
-          size: { width: 0, height: 0 },
+          size: { x: 0, y: 0 },
           color: "rgb(0,0,0)",
         });
         break;
@@ -74,14 +74,13 @@ const Canvas = ({}) => {
           id: id,
           type: mode,
           position: { x: startX, y: startY },
-          size: { width: 0, height: 0 },
+          size: { x: 0, y: 0 },
           color: "rgb(255,255,255)",
           text: "Enter text",
           fontSize: 16,
           fontColor: "rgb(0,0,0)",
         });
         break;
-
       default:
         console.warn(`Unknown mode: ${mode}`);
         break;
@@ -96,7 +95,7 @@ const Canvas = ({}) => {
           id: id,
           type: mode,
           position: { x: startX, y: startY },
-          size: { width: 100, height: 100 },
+          size: { x: 100, y: 100 },
           color: "rgb(0,0,0)",
         });
         break;
@@ -115,14 +114,13 @@ const Canvas = ({}) => {
           id: id,
           type: mode,
           position: { x: startX, y: startY },
-          size: { width: 50, height: 50 },
+          size: { x: 50, y: 50 },
           color: "rgb(255,255,255)",
           text: "Enter text",
           fontSize: 16,
           fontColor: "rgb(0,0,0)",
         });
         break;
-
       default:
         console.warn(`Unknown mode: ${mode}`);
         break;
@@ -142,6 +140,7 @@ const Canvas = ({}) => {
       basicMove(currentX, currentY);
     }
   };
+
   const dragMove = (currentX, currentY) => {
     const width = Math.abs(currentX - dragStart.x);
     const height = Math.abs(currentY - dragStart.y);
@@ -154,16 +153,15 @@ const Canvas = ({}) => {
       case "text":
         updateShape(draggingShapeId, {
           position: { x: positionX, y: positionY },
-          size: { width: width, height: height },
+          size: { x: width, y: height },
         });
         break;
       case "line":
         updateShape(draggingShapeId, {
-          position: { x: dragStart.x, y: dragStart.y },
-          endPosition: { x: currentX, y: currentY },
+          startPoint: { x: dragStart.x, y: dragStart.y },
+          endPoint: { x: currentX, y: currentY },
         });
         break;
-
       default:
         console.warn(`Unknown mode: ${mode}`);
         break;
@@ -181,11 +179,10 @@ const Canvas = ({}) => {
         break;
       case "line":
         updateShape(draggingShapeId, {
-          position: { x: currentX, y: currentY },
-          endPosition: { x: currentX + 100, y: currentY },
+          startPoint: { x: currentX, y: currentY },
+          endPoint: { x: currentX + 100, y: currentY },
         });
         break;
-
       default:
         console.warn(`Unknown mode: ${mode}`);
         break;
@@ -235,15 +232,14 @@ const Canvas = ({}) => {
           </div>
         ))}
 
-      {menuPosition && selectedId !== null && (
+      {menuPosition && selectedShapeId !== null && (
         <div onMouseDown={(e) => e.stopPropagation()}>
           <DetailMenu
-            id={selectedId}
+            id={selectedShapeId}
             position={menuPosition}
-            canvasObject={canvasObjects[selectedId]}
-            setCanvasObject={(obj) => setCanvasObject(selectedId, obj)}
+            shape={shapes[selectedShapeId]}
             onClose={closeDetailMenu}
-            onDelete={() => handleDeleteObject(selectedId)}
+            onDelete={() => removeShape(selectedShapeId)}
           />
         </div>
       )}
