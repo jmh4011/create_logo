@@ -1,15 +1,27 @@
 const useShapeStyles = (shape, isSelected) => {
-  const baseStyle = {
+  let shapeStyle = {
     position: "absolute",
     backgroundColor: shape.color || "rgb(0,0,0)",
-    border: isSelected ? "2px solid blue" : "1px solid black",
+    border: "2px solid blue",
     cursor: "pointer",
     boxSizing: "border-box",
     userSelect: "none",
     display: "flex",
   };
-
-  let shapeStyle = {};
+  let borderBox = {
+    position: "absolute",
+    borderWidth: "1px", // 테두리 두께
+    borderStyle: "solid", // 테두리 스타일
+    borderImage: `
+      repeating-linear-gradient(
+        45deg, 
+        black, black 5px, white 5px, white 10px
+      ) 10 stretch
+    `,
+    borderImageSlice: 1,
+    backgroundColor: "rgba(0,0,0,0)",
+    zIndex: 5,
+  };
   const color = shape.color || "#000";
 
   const handleSize = 10;
@@ -36,7 +48,7 @@ const useShapeStyles = (shape, isSelected) => {
     );
 
     shapeStyle = {
-      ...baseStyle,
+      ...shapeStyle,
       left: `${shape.startPoint.x}px`,
       top: `${shape.startPoint.y}px`,
       width: `${length}px`,
@@ -61,6 +73,16 @@ const useShapeStyles = (shape, isSelected) => {
       top: `${-halfHandleSize + (shape.thickness || 2) / 2}px`,
       cursor: "pointer",
     };
+
+    borderBox = {
+      ...borderBox,
+      left: `${shape.startPoint.x}px`,
+      top: `${shape.startPoint.y}px`,
+      width: `${length}px`,
+      height: `${shape.thickness || 2}px`,
+      transformOrigin: "0 0",
+      transform: `rotate(${angle}rad)`,
+    };
   } else {
     const commonStyle = {
       left: shape.position?.x || 0,
@@ -70,9 +92,10 @@ const useShapeStyles = (shape, isSelected) => {
     };
 
     switch (shape.type) {
+      case "icon":
       case "rectangle":
         shapeStyle = {
-          ...baseStyle,
+          ...shapeStyle,
           ...commonStyle,
           width: shape.size?.x || 0,
           height: shape.size?.y || 0,
@@ -82,7 +105,7 @@ const useShapeStyles = (shape, isSelected) => {
 
       case "circle":
         shapeStyle = {
-          ...baseStyle,
+          ...shapeStyle,
           ...commonStyle,
           width: shape.size?.x || 0,
           height: shape.size?.y || 0,
@@ -93,7 +116,7 @@ const useShapeStyles = (shape, isSelected) => {
 
       case "text":
         shapeStyle = {
-          ...baseStyle,
+          ...shapeStyle,
           ...commonStyle,
           width: shape.size?.x || 0,
           fontSize: shape.size?.y ? shape.size.y / 4 : 16,
@@ -168,11 +191,28 @@ const useShapeStyles = (shape, isSelected) => {
       cursor: "move",
       backgroundColor: "transparent",
     };
-  }
 
+    borderBox = {
+      left: shape.position?.x || 0,
+      top: shape.position?.y || 0,
+      width: shape.size?.x || 0,
+      height: shape.size?.y || 0,
+      borderWidth: "1px", // 테두리 두께
+      borderStyle: "solid", // 테두리 스타일
+      borderImage: `
+        repeating-linear-gradient(
+          45deg, 
+          black, black 5px, white 5px, white 10px
+        ) 10 stretch
+      `,
+      borderImageSlice: 1,
+      backgroundColor: "rgba(0,0,0,0)",
+    };
+  }
   return {
     shapeStyle,
     handleStyles,
+    borderBox,
   };
 };
 

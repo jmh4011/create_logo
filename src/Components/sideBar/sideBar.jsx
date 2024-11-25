@@ -4,23 +4,7 @@ import Logo from "../../assets/images/logo.png";
 import useCanvas from "../../features/canvas/useCanvas";
 import useMode from "../../features/mode/useMode";
 import * as FaIcons from "react-icons/fa";
-import * as AiIcons from "react-icons/ai";
-import * as BiIcons from "react-icons/bi";
-import * as BsIcons from "react-icons/bs";
-import * as CgIcons from "react-icons/cg";
-import * as DiIcons from "react-icons/di";
-import * as FiIcons from "react-icons/fi";
-import * as GoIcons from "react-icons/go";
-import * as GrIcons from "react-icons/gr";
-import * as HiIcons from "react-icons/hi";
-import * as ImIcons from "react-icons/im";
-import * as IoIcons from "react-icons/io";
-import * as MdIcons from "react-icons/md";
-import * as RiIcons from "react-icons/ri";
-import * as SiIcons from "react-icons/si";
-import * as TiIcons from "react-icons/ti";
-import * as VscIcons from "react-icons/vsc";
-import * as WiIcons from "react-icons/wi";
+import iconMapping from "../../utils/iconMapping";
 
 const modeButtons = [
   { mode: null, icon: <FaIcons.FaMousePointer />, label: "Select" },
@@ -32,7 +16,7 @@ const modeButtons = [
 
 const SideBar = () => {
   const { shapeIds, selectedShapeId, selectShape, removeShape } = useCanvas();
-  const { mode, changeMode } = useMode();
+  const { mode, selectedIcon, setMode, setSelectedIcon } = useMode();
 
   const [isLayersOpen, setIsLayersOpen] = useState(true);
   const [isToolsOpen, setIsToolsOpen] = useState(true);
@@ -45,26 +29,7 @@ const SideBar = () => {
   const ICONS_PER_PAGE = 32;
 
   const allIcons = useMemo(() => {
-    return [
-      ...Object.entries(FaIcons),
-      ...Object.entries(AiIcons),
-      ...Object.entries(BiIcons),
-      ...Object.entries(BsIcons),
-      ...Object.entries(CgIcons),
-      ...Object.entries(DiIcons),
-      ...Object.entries(FiIcons),
-      ...Object.entries(GoIcons),
-      ...Object.entries(GrIcons),
-      ...Object.entries(HiIcons),
-      ...Object.entries(ImIcons),
-      ...Object.entries(IoIcons),
-      ...Object.entries(MdIcons),
-      ...Object.entries(RiIcons),
-      ...Object.entries(SiIcons),
-      ...Object.entries(TiIcons),
-      ...Object.entries(VscIcons),
-      ...Object.entries(WiIcons),
-    ].filter(([name]) =>
+    return Object.entries(iconMapping).filter(([name]) =>
       /^(Fa|Ai|Bi|Bs|Cg|Di|Fi|Go|Gr|Hi|Im|Io|Md|Ri|Si|Ti|Vsc|Wi)/.test(name)
     );
   }, []);
@@ -96,6 +61,10 @@ const SideBar = () => {
     }
   };
 
+  const handleSelectIcon = (iconName) => {
+    setSelectedIcon(iconName);
+  };
+
   const toggleRightSidebar = () => {
     setIsRightSidebarOpen(!isRightSidebarOpen);
   };
@@ -120,9 +89,16 @@ const SideBar = () => {
         {displayedIcons.map(([name, Icon]) => (
           <div
             key={name}
-            className="flex flex-col items-center justify-center p-2 bg-gray-800 rounded cursor-pointer hover:bg-gray-700"
+            className={`flex flex-col items-center justify-center p-2 rounded cursor-pointer 
+              
+              ${
+                selectedIcon === name
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-800 text-gray-300 hover:bg-gray-700"
+              }
+              `}
             onClick={() => {
-              console.log(`Selected icon: ${name}`);
+              handleSelectIcon(name, Icon);
             }}
           >
             <Icon className="text-2xl text-white" />
@@ -213,7 +189,7 @@ const SideBar = () => {
             {modeButtons.map((button) => (
               <button
                 key={button.label}
-                onClick={() => changeMode(button.mode)}
+                onClick={() => setMode(button.mode)}
                 className={`flex items-center justify-center p-2 rounded ${
                   mode === button.mode
                     ? "bg-blue-600 text-white"

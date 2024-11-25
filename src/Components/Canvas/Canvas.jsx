@@ -15,7 +15,7 @@ const Canvas = () => {
     selectShape,
   } = useCanvas();
 
-  const { mode, changeMode } = useMode();
+  const { mode, selectedIcon, resetMode } = useMode();
   const [isDrawing, setIsDrawing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [menuPosition, setMenuPosition] = useState(null);
@@ -79,6 +79,16 @@ const Canvas = () => {
           text: "Enter text",
           fontSize: 16,
           fontColor: "rgb(0,0,0)",
+        });
+        break;
+      case "icon":
+        addShape({
+          id: id,
+          type: mode,
+          position: { x: startX, y: startY },
+          size: { x: 0, y: 0 },
+          color: "rgb(255,255,255)",
+          iconName: selectedIcon,
         });
         break;
       default:
@@ -151,6 +161,7 @@ const Canvas = () => {
       case "rectangle":
       case "circle":
       case "text":
+      case "icon":
         updateShape(draggingShapeId, {
           position: { x: positionX, y: positionY },
           size: { x: width, y: height },
@@ -173,6 +184,7 @@ const Canvas = () => {
       case "rectangle":
       case "circle":
       case "text":
+      case "icon":
         updateShape(draggingShapeId, {
           position: { x: currentX, y: currentY },
         });
@@ -193,7 +205,7 @@ const Canvas = () => {
     if (!isDrawing) return;
     setIsDrawing(false);
     setDraggingShapeId(null);
-    changeMode(null);
+    resetMode();
   };
 
   const openDetailMenu = (e, id) => {
