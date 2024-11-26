@@ -54,13 +54,12 @@ const iconLibraries = {
   Ti: TiIcons,
   Vsc: VscIcons,
   Wi: WiIcons,
-  Ci: CiIcons, 
+  Ci: CiIcons,
   Fc: FcIcons,
-  Gi: GiIcons, 
-  Sl: SlIcons, 
+  Gi: GiIcons,
+  Sl: SlIcons,
   Tb: TbIcons,
 };
-
 
 const SideBar = () => {
   const { shapeIds, selectedShapeId, selectShape, removeShape } = useCanvas();
@@ -90,9 +89,9 @@ const SideBar = () => {
 
   const loadMoreIcons = useCallback(() => {
     if (isLoading) return;
-    
+
     setIsLoading(true);
-    
+
     const start = page * ICONS_PER_PAGE;
     const filteredIcons = searchTerm.trim()
       ? allIcons.filter(([name]) =>
@@ -101,11 +100,11 @@ const SideBar = () => {
       : allIcons;
 
     const iconsToDisplay = filteredIcons.slice(start, start + ICONS_PER_PAGE);
-    
+
     if (iconsToDisplay.length > 0) {
       setTimeout(() => {
-        setDisplayedIcons(prev => [...prev, ...iconsToDisplay]);
-        setPage(prev => prev + 1);
+        setDisplayedIcons((prev) => [...prev, ...iconsToDisplay]);
+        setPage((prev) => prev + 1);
         setIsLoading(false);
       }, 300);
     } else {
@@ -113,28 +112,33 @@ const SideBar = () => {
     }
   }, [isLoading, page, searchTerm, allIcons]);
 
-  const handleScroll = useCallback((e) => {
-    const { scrollTop, scrollHeight, clientHeight } = e.target;
-    
-    if (!isLoading && (scrollHeight - scrollTop <= clientHeight * 1.2)) {
-      loadMoreIcons();
-    }
-  }, [loadMoreIcons, isLoading]);
+  const handleScroll = useCallback(
+    (e) => {
+      const { scrollTop, scrollHeight, clientHeight } = e.target;
 
-  const handleSearchChange = useCallback((e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    setPage(0);
-    setDisplayedIcons([]);
-    setTimeout(() => {
-      loadMoreIcons();
-    }, 300);
-  }, [loadMoreIcons]);
+      if (!isLoading && scrollHeight - scrollTop <= clientHeight * 1.2) {
+        loadMoreIcons();
+      }
+    },
+    [loadMoreIcons, isLoading]
+  );
+
+  const handleSearchChange = useCallback(
+    (e) => {
+      const value = e.target.value;
+      setSearchTerm(value);
+      setPage(0);
+      setDisplayedIcons([]);
+      setTimeout(() => {
+        loadMoreIcons();
+      }, 300);
+    },
+    [loadMoreIcons]
+  );
 
   const handleSelectIcon = (name) => {
-    console.log('Selected Icon:', name);
+    console.log("Selected Icon:", name);
     setSelectedIcon(name);
-    setMode('icon');
   };
 
   const renderIconsSection = () => (
@@ -150,14 +154,20 @@ const SideBar = () => {
           hover:bg-gray-700 transition-colors duration-200"
       >
         <span className="text-xl font-medium">Icons</span>
-        <span className={`transform transition-transform duration-200 ${isIconsOpen ? "rotate-180" : ""}`}>
+        <span
+          className={`transform transition-transform duration-200 ${
+            isIconsOpen ? "rotate-180" : ""
+          }`}
+        >
           ▼
         </span>
       </button>
 
-      <div 
+      <div
         className={`transition-all duration-300 ease-in-out ${
-          isIconsOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0 overflow-hidden"
+          isIconsOpen
+            ? "max-h-[500px] opacity-100"
+            : "max-h-0 opacity-0 overflow-hidden"
         }`}
       >
         <input
@@ -169,9 +179,9 @@ const SideBar = () => {
             border border-gray-700 focus:border-blue-500 focus:outline-none"
         />
 
-        <div 
+        <div
           className="relative mt-2 border border-gray-700 rounded bg-gray-900"
-          style={{ height: '300px' }}
+          style={{ height: "300px" }}
         >
           <div
             className="absolute inset-0 overflow-y-scroll scrollbar-thin 
@@ -186,18 +196,23 @@ const SideBar = () => {
                   onClick={() => handleSelectIcon(name)}
                   className={`flex flex-col items-center justify-center p-2 rounded cursor-pointer 
                     transition-colors duration-200
-                    ${selectedIcon === name 
-                      ? "bg-blue-600 hover:bg-blue-500" 
-                      : "bg-gray-800 hover:bg-gray-700"}`}
+                    ${
+                      selectedIcon === name
+                        ? "bg-blue-600 hover:bg-blue-500"
+                        : "bg-gray-800 hover:bg-gray-700"
+                    }`}
                 >
                   <Icon className="text-2xl text-white" />
                   <span className="text-xs text-white mt-1 truncate w-full text-center">
-                  {name.replace(/^(Fa|Ai|Bi|Bs|Cg|Ci|Di|Fc|Fi|Gi|Go|Gr|Hi|Im|Io|Md|Ri|Si|Sl|Tb|Ti|Vsc|Wi)/, "")}
+                    {name.replace(
+                      /^(Fa|Ai|Bi|Bs|Cg|Ci|Di|Fc|Fi|Gi|Go|Gr|Hi|Im|Io|Md|Ri|Si|Sl|Tb|Ti|Vsc|Wi)/,
+                      ""
+                    )}
                   </span>
                 </div>
               ))}
             </div>
-            
+
             {isLoading && (
               <div className="flex justify-center items-center py-4 space-x-2">
                 <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -321,14 +336,16 @@ const SideBar = () => {
   };
 
   const toggleSidebar = useCallback(() => {
-    setIsSidebarOpen(prev => !prev);
+    setIsSidebarOpen((prev) => !prev);
   }, []);
 
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block h-screen bg-black text-white w-full 
-        overflow-y-auto scrollbar scrollbar-track-gray-900 scrollbar-thumb-gray-800">
+      <div
+        className="hidden lg:block h-screen bg-black text-white w-full 
+        overflow-y-auto scrollbar scrollbar-track-gray-900 scrollbar-thumb-gray-800"
+      >
         <div className="p-4 flex justify-start">
           <Link to="/">
             <img src={Logo} alt="Logo" className="h-12 w-auto" />
@@ -343,10 +360,7 @@ const SideBar = () => {
           <Link to="/" className="flex items-center">
             <img src={Logo} alt="Logo" className="h-8 w-auto" />
           </Link>
-          <button 
-            onClick={toggleSidebar} 
-            className="text-white"
-          >
+          <button onClick={toggleSidebar} className="text-white">
             <FaIcons.FaBars className="text-2xl" />
           </button>
         </div>
@@ -362,15 +376,14 @@ const SideBar = () => {
           <Link to="/">
             <img src={Logo} alt="Logo" className="h-8 w-auto" />
           </Link>
-          <button 
-            onClick={toggleSidebar} 
-            className="text-white"
-          >
+          <button onClick={toggleSidebar} className="text-white">
             <FaIcons.FaTimes className="text-2xl" />
           </button>
         </div>
-        <div className="overflow-y-auto h-[calc(100vh-4rem)] 
-          scrollbar scrollbar-track-gray-800 scrollbar-thumb-gray-600">
+        <div
+          className="overflow-y-auto h-[calc(100vh-4rem)] 
+          scrollbar scrollbar-track-gray-800 scrollbar-thumb-gray-600"
+        >
           {renderSidebarContent()}
         </div>
       </div>
