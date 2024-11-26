@@ -4,23 +4,6 @@ import Logo from "../../assets/images/logo.png";
 import useCanvas from "../../features/canvas/useCanvas";
 import useMode from "../../features/mode/useMode";
 import * as FaIcons from "react-icons/fa";
-import * as AiIcons from "react-icons/ai";
-import * as BiIcons from "react-icons/bi";
-import * as BsIcons from "react-icons/bs";
-import * as CgIcons from "react-icons/cg";
-import * as DiIcons from "react-icons/di";
-import * as FiIcons from "react-icons/fi";
-import * as GoIcons from "react-icons/go";
-import * as GrIcons from "react-icons/gr";
-import * as HiIcons from "react-icons/hi";
-import * as ImIcons from "react-icons/im";
-import * as IoIcons from "react-icons/io";
-import * as MdIcons from "react-icons/md";
-import * as RiIcons from "react-icons/ri";
-import * as SiIcons from "react-icons/si";
-import * as TiIcons from "react-icons/ti";
-import * as VscIcons from "react-icons/vsc";
-import * as WiIcons from "react-icons/wi";
 
 const modeButtons = [
   { mode: null, icon: <FaIcons.FaMousePointer />, label: "Select" },
@@ -30,78 +13,102 @@ const modeButtons = [
   { mode: "text", icon: <FaIcons.FaTextWidth />, label: "Text" },
 ];
 
+const iconLibraries = {
+  Fa: () => import('react-icons/fa'),
+  Ai: () => import('react-icons/ai'),
+  Bi: () => import('react-icons/bi'),
+  Bs: () => import('react-icons/bs'),
+  Cg: () => import('react-icons/cg'),
+  Di: () => import('react-icons/di'),
+  Fi: () => import('react-icons/fi'),
+  Go: () => import('react-icons/go'),
+  Gr: () => import('react-icons/gr'),
+  Hi: () => import('react-icons/hi'),
+  Im: () => import('react-icons/im'),
+  Io: () => import('react-icons/io'),
+  Md: () => import('react-icons/md'),
+  Ri: () => import('react-icons/ri'),
+  Si: () => import('react-icons/si'),
+  Ti: () => import('react-icons/ti'),
+  Vsc: () => import('react-icons/vsc'),
+  Wi: () => import('react-icons/wi'),
+};
+
 const SideBar = () => {
   const { shapeIds, selectedShapeId, selectShape, removeShape } = useCanvas();
   const { mode, changeMode } = useMode();
 
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLayersOpen, setIsLayersOpen] = useState(true);
   const [isToolsOpen, setIsToolsOpen] = useState(true);
   const [isIconsOpen, setIsIconsOpen] = useState(false);
   const [displayedIcons, setDisplayedIcons] = useState([]);
-  const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isRightSidebarOpen, setIsRightSidebarOpen] = useState(false);
-  const [showAdModal, setShowAdModal] = useState(false);
-  const ICONS_PER_PAGE = 32;
+  const [loadedLibraries, setLoadedLibraries] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [currentLibraryIndex, setCurrentLibraryIndex] = useState(0);
+  const libraryNames = Object.keys(iconLibraries);
+  const ICONS_PER_LOAD = 32;
 
-  const allIcons = useMemo(() => {
-    return [
-      ...Object.entries(FaIcons),
-      ...Object.entries(AiIcons),
-      ...Object.entries(BiIcons),
-      ...Object.entries(BsIcons),
-      ...Object.entries(CgIcons),
-      ...Object.entries(DiIcons),
-      ...Object.entries(FiIcons),
-      ...Object.entries(GoIcons),
-      ...Object.entries(GrIcons),
-      ...Object.entries(HiIcons),
-      ...Object.entries(ImIcons),
-      ...Object.entries(IoIcons),
-      ...Object.entries(MdIcons),
-      ...Object.entries(RiIcons),
-      ...Object.entries(SiIcons),
-      ...Object.entries(TiIcons),
-      ...Object.entries(VscIcons),
-      ...Object.entries(WiIcons),
-    ].filter(([name]) =>
-      /^(Fa|Ai|Bi|Bs|Cg|Di|Fi|Go|Gr|Hi|Im|Io|Md|Ri|Si|Ti|Vsc|Wi)/.test(name)
-    );
-  }, []);
-
-  const filteredIcons = useMemo(() => {
-    if (searchTerm.trim() === "") return allIcons;
-    return allIcons.filter(([name]) =>
-      name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [searchTerm, allIcons]);
-
-  useEffect(() => {
-    const endIdx = (page + 1) * ICONS_PER_PAGE;
-    const newIcons = filteredIcons.slice(0, endIdx);
-    setDisplayedIcons(newIcons);
-  }, [page, filteredIcons]);
-
-  const handleSearchChange = (e) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    setPage(0);
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
-  const handleDelete = () => {
-    if (selectedShapeId !== undefined) {
-      removeShape(selectedShapeId);
-    } else {
-      alert("No shape selected!");
+  const loadIconsFromLibrary = async (libraryName) => {
+    if (loadedLibraries[libraryName]) return loadedLibraries[libraryName];
+
+    try {
+      const module = await iconLibraries[libraryName]();
+      const icons = Object.entries(module)
+        .filter(([name]) => name.startsWith(libraryName))
+        .slice(0, ICONS_PER_LOAD);
+      
+      setLoadedLibraries(prev => ({
+        ...prev,
+        [libraryName]: icons
+      }));
+      
+      return icons;
+    } catch (error) {
+      console.error(`Error loading ${libraryName} icons:`, error);
+      return [];
     }
   };
 
-  const toggleRightSidebar = () => {
-    setIsRightSidebarOpen(!isRightSidebarOpen);
+  const loadMoreIcons = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      const currentLibrary = libraryNames[currentLibraryIndex];
+      if (!currentLibrary) {
+        setIsLoading(false);
+        return;
+      }
+
+      const newIcons = await loadIconsFromLibrary(currentLibrary);
+      
+      setDisplayedIcons(prev => [...prev, ...newIcons]);
+      
+      if (newIcons.length < ICONS_PER_LOAD) {
+        setCurrentLibraryIndex(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error loading more icons:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleSaveClick = () => {
-    setShowAdModal(true);
+  const filteredIcons = useMemo(() => {
+    if (searchTerm.trim() === "") return displayedIcons;
+    return displayedIcons.filter(([name]) =>
+      name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [searchTerm, displayedIcons]);
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const renderIconGrid = () => (
@@ -110,14 +117,12 @@ const SideBar = () => {
       onScroll={(e) => {
         const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
         if (scrollHeight - scrollTop <= clientHeight * 1.5) {
-          if (displayedIcons.length < filteredIcons.length) {
-            setPage((prev) => prev + 1);
-          }
+          loadMoreIcons();
         }
       }}
     >
       <div className="grid grid-cols-4 gap-2 mt-2 p-2">
-        {displayedIcons.map(([name, Icon]) => (
+        {filteredIcons.map(([name, Icon]) => (
           <div
             key={name}
             className="flex flex-col items-center justify-center p-2 bg-gray-800 rounded cursor-pointer hover:bg-gray-700"
@@ -127,25 +132,37 @@ const SideBar = () => {
           >
             <Icon className="text-2xl text-white" />
             <span className="text-xs text-white mt-1 truncate w-full text-center">
-              {name.replace(
-                /^(Fa|Ai|Bi|Bs|Cg|Di|Fi|Go|Gr|Hi|Im|Io|Md|Ri|Si|Ti|Vsc|Wi)/,
-                ""
-              )}
+              {name.replace(/^(Fa|Ai|Bi|Bs|Cg|Di|Fi|Go|Gr|Hi|Im|Io|Md|Ri|Si|Ti|Vsc|Wi)/, "")}
             </span>
           </div>
         ))}
+        {isLoading && (
+          <div className="col-span-4 flex justify-center py-4">
+            <span className="text-white">Loading...</span>
+          </div>
+        )}
       </div>
-      {displayedIcons.length < filteredIcons.length && (
-        <div className="flex justify-center items-center py-4">
-          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-white"></div>
-        </div>
-      )}
     </div>
   );
 
+  useEffect(() => {
+    if (isIconsOpen && displayedIcons.length === 0) {
+      loadMoreIcons();
+    }
+  }, [isIconsOpen]);
+
+  const handleDelete = () => {
+    if (selectedShapeId !== undefined) {
+      removeShape(selectedShapeId);
+    } else {
+      alert("No shape selected!");
+    }
+  };
+
   const renderSidebarContent = () => (
-    <div className="w-full">
-      <div className="mt-4 w-full">
+    <div className="w-full h-full flex flex-col space-y-4">
+      {/* Layers Section */}
+      <div className="w-full px-4">
         <button
           onClick={() => setIsLayersOpen(!isLayersOpen)}
           className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
@@ -159,13 +176,12 @@ const SideBar = () => {
             ▼
           </span>
         </button>
-
         <div
           className={`transition-all duration-300 ease-in-out overflow-hidden ${
             isLayersOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="overflow-y-auto overflow-x-hidden w-full h-80 border border-white mt-2 scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+          <div className="w-full h-80 border border-white mt-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
             {shapeIds.map((id) => (
               <div
                 key={id}
@@ -189,7 +205,8 @@ const SideBar = () => {
         </div>
       </div>
 
-      <div className="mt-4 w-full">
+      {/* Tools Section */}
+      <div className="w-full px-4">
         <button
           onClick={() => setIsToolsOpen(!isToolsOpen)}
           className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
@@ -203,18 +220,17 @@ const SideBar = () => {
             ▼
           </span>
         </button>
-
         <div
           className={`transition-all duration-300 ease-in-out overflow-hidden ${
             isToolsOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
           }`}
         >
-          <div className="grid grid-cols-2 gap-2 mt-2">
+          <div className="grid grid-cols-2 gap-2 mt-2 w-full">
             {modeButtons.map((button) => (
               <button
                 key={button.label}
                 onClick={() => changeMode(button.mode)}
-                className={`flex items-center justify-center p-2 rounded ${
+                className={`flex items-center justify-center w-full p-2 rounded ${
                   mode === button.mode
                     ? "bg-blue-600 text-white"
                     : "bg-gray-800 text-gray-300 hover:bg-gray-700"
@@ -228,7 +244,8 @@ const SideBar = () => {
         </div>
       </div>
 
-      <div className="mt-4 w-full">
+      {/* Icons Section */}
+      <div className="w-full px-4">
         <button
           onClick={() => setIsIconsOpen(!isIconsOpen)}
           className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
@@ -242,7 +259,6 @@ const SideBar = () => {
             ▼
           </span>
         </button>
-
         <div
           className={`transition-all duration-300 ease-in-out overflow-hidden ${
             isIconsOpen ? "max-h-[400px] opacity-100" : "max-h-0 opacity-0"
@@ -263,80 +279,53 @@ const SideBar = () => {
 
   return (
     <>
-      <div className="h-screen flex flex-col bg-black text-white overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-        <div className="p-2">
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:block h-screen bg-black text-white w-full">
+        <div className="p-4 flex justify-start">
           <Link to="/">
-            <img src={Logo} alt="Logo" className="h-8 md:h-12 lg:h-16 w-auto" />
+            <img src={Logo} alt="Logo" className="h-12 w-auto" />
           </Link>
+        </div>
+        {renderSidebarContent()}
+      </div>
 
-          <button
-            className="mt-4 w-full bg-cyan-500 text-black font-medium px-4 py-2 rounded-lg hover:bg-cyan-600 transition md:block hidden"
-            onClick={handleSaveClick}
-          >
-            <div className="flex items-center justify-center">
-              <FaIcons.FaSave className="mr-2" />
-              <span>Save Image</span>
-            </div>
+      {/* Mobile & Tablet Header */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 bg-black text-white z-40">
+        <div className="h-16 px-4 flex items-center justify-between">
+          <Link to="/" className="flex items-center">
+            <img src={Logo} alt="Logo" className="h-8 w-auto" />
+          </Link>
+          <button onClick={toggleSidebar} className="text-white">
+            <FaIcons.FaBars className="text-2xl" />
           </button>
         </div>
+      </div>
 
-        <div className="hidden md:block w-full h-full max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 px-2">
+      {/* Mobile & Tablet Slide Menu */}
+      <div
+        className={`lg:hidden fixed top-0 left-0 h-screen w-full bg-black text-white transform transition-transform duration-300 ease-in-out z-50 ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="h-16 px-4 flex items-center justify-between">
+          <Link to="/">
+            <img src={Logo} alt="Logo" className="h-8 w-auto" />
+          </Link>
+          <button onClick={toggleSidebar} className="text-white">
+            <FaIcons.FaTimes className="text-2xl" />
+          </button>
+        </div>
+        <div className="overflow-y-auto h-[calc(100vh-4rem)]">
           {renderSidebarContent()}
         </div>
       </div>
 
-      <div
-        className={`md:hidden fixed right-0 top-0 h-full w-full bg-black transform transition-transform duration-300 ease-in-out z-50 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800 ${
-          isRightSidebarOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
-        <div className="p-4 pb-20">
-          <button
-            onClick={toggleRightSidebar}
-            className="fixed top-4 right-4 text-white z-50 bg-gray-800 p-2 rounded"
-          >
-            <FaIcons.FaTimes />
-          </button>
-          <button
-            className="w-full bg-cyan-500 text-black font-medium px-4 py-2 rounded-lg hover:bg-cyan-600 transition mt-12"
-            onClick={handleSaveClick}
-          >
-            <div className="flex items-center justify-center">
-              <FaIcons.FaSave className="mr-2" />
-              <span>Save Image</span>
-            </div>
-          </button>
-          <div className="mt-4">{renderSidebarContent()}</div>
-        </div>
-      </div>
-
-      {showAdModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg shadow-xl max-w-full max-h-full overflow-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
-            <div className="p-4">
-              <button
-                onClick={() => setShowAdModal(false)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
-              >
-                <FaIcons.FaTimes />
-              </button>
-              <div className="hidden md:block">
-                <img
-                  src="https://via.placeholder.com/728x90?text=Desktop+Ad+Demo+(728x90)"
-                  alt="Desktop Ad"
-                  className="w-full h-auto"
-                />
-              </div>
-              <div className="md:hidden">
-                <img
-                  src="https://via.placeholder.com/320x100?text=Mobile+Ad+Demo+(320x100)"
-                  alt="Mobile Ad"
-                  className="w-full h-auto"
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={toggleSidebar}
+        />
       )}
     </>
   );
