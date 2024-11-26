@@ -7,18 +7,14 @@ import Navbar from "./Components/Home/Navbar";
 // Lazy-loaded components
 const Hero = lazy(() => import("./Components/Home/Hero.jsx"));
 const About = lazy(() => import("./Components/Home/About.jsx"));
-const Technologies = lazy(() =>
-  import("./Components/Home/Technologies.jsx")
-);
+const Technologies = lazy(() => import("./Components/Home/Technologies.jsx"));
 const Experience = lazy(() => import("./Components/Home/Experience.jsx"));
 const Galleries = lazy(() => import("./Components/Home/Galleries.jsx"));
 const Contact = lazy(() => import("./Components/Home/Contact.jsx"));
 const CreateLogoPage = lazy(() =>
   import("./Components/CreateLogoPage/CreateLogoPage.jsx")
 );
-const AdBlockWarning = lazy(() =>
-  import("./detectAdblock/AdBlockWarning.jsx")
-);
+const AdBlockWarning = lazy(() => import("./detectAdblock/AdBlockWarning.jsx"));
 
 const App = () => {
   const [currentTitle, setCurrentTitle] = useState("Home");
@@ -58,7 +54,7 @@ const App = () => {
     };
 
     const observer = new IntersectionObserver(handleIntersection, {
-      threshold: 0.5, 
+      threshold: 0.5,
     });
 
     const sections = document.querySelectorAll(
@@ -79,6 +75,23 @@ const App = () => {
     };
   }, [location]);
 
+  const FullscreenLoading = () => (
+    <div className="fixed inset-0 flex items-center justify-center bg-gradient-to-r from-gray-900 to-black">
+      <div className="flex flex-col items-center">
+        <div className="relative w-24 h-24">
+          <div className="absolute inset-0 border-4 border-blue-500/30 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+        </div>
+        <div className="mt-8 text-2xl font-semibold text-white tracking-wider">
+          Loading
+          <span className="animate-pulse">.</span>
+          <span className="animate-pulse delay-100">.</span>
+          <span className="animate-pulse delay-200">.</span>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="bg-black text-neutral-300 overflow-x-hidden antialiased">
       <Helmet>
@@ -96,7 +109,7 @@ const App = () => {
             : ""
         }`}
       >
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense fallback={<FullscreenLoading />}>
           <Routes>
             <Route
               path="/"
