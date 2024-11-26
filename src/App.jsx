@@ -25,7 +25,6 @@ const App = () => {
   const location = useLocation();
 
   useEffect(() => {
-    // 가장 큰 교차 영역을 가진 섹션을 찾는 함수
     const handleIntersection = (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
@@ -59,10 +58,9 @@ const App = () => {
     };
 
     const observer = new IntersectionObserver(handleIntersection, {
-      threshold: 0.5, // 최소 50%가 화면에 보여야 함
+      threshold: 0.5, 
     });
 
-    // 관찰할 섹션 선택
     const sections = document.querySelectorAll(
       "#home, #about, #technologies, #experience, #galleries, #contact"
     );
@@ -110,7 +108,7 @@ const App = () => {
                   <div id="about" className="min-h-screen">
                     <About />
                   </div>
-                  <div id="technologies" className="min-h-screen">
+                  <div id="technologies" className="min-h-44">
                     <Technologies />
                   </div>
                   <div id="experience" className="min-h-screen">

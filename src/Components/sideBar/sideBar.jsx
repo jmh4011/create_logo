@@ -102,7 +102,6 @@ const SideBar = () => {
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
-    setPage(0);
   };
 
   const handleDelete = () => {
@@ -121,6 +120,15 @@ const SideBar = () => {
     setShowAdModal(true);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const handleSelectIcon = (name, Icon) => {
+    setSelectedIcon(name);
+    setMode('icon');
+  };
+
   const renderIconGrid = () => (
     <div
       className="h-80 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800"
@@ -136,7 +144,6 @@ const SideBar = () => {
           <div
             key={name}
             className={`flex flex-col items-center justify-center p-2 rounded cursor-pointer 
-              
               ${
                 selectedIcon === name
                   ? "bg-blue-600 text-white"
@@ -168,7 +175,7 @@ const SideBar = () => {
     }
   }, [isIconsOpen]);
 
-  const handleDelete = () => {
+  const deleteSelectedShape = () => {
     if (selectedShapeId !== undefined) {
       removeShape(selectedShapeId);
     } else {
@@ -177,7 +184,7 @@ const SideBar = () => {
   };
 
   const renderSidebarContent = () => (
-    <div className="w-full h-full flex flex-col space-y-4">
+    <div className="w-full h-full flex flex-col space-y-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
       {/* Layers Section */}
       <div className="w-full px-4">
         <button
@@ -214,7 +221,7 @@ const SideBar = () => {
             ))}
           </div>
           <button
-            onClick={handleDelete}
+            onClick={deleteSelectedShape}
             className="w-full mt-4 px-4 py-2 bg-red-600 text-white rounded hover:bg-red-500"
           >
             Delete
@@ -294,10 +301,43 @@ const SideBar = () => {
     </div>
   );
 
+  const changeMode = (newMode) => {
+    setMode(newMode);
+    setSelectedIcon(null); // Reset selected icon when changing modes
+  };
+
+  const loadMoreIcons = async () => {
+    if (isLoading) return;
+    
+    setIsLoading(true);
+    try {
+      const currentLibrary = libraryNames[currentLibraryIndex];
+      if (!currentLibrary) {
+        setIsLoading(false);
+        return;
+      }
+
+      const icons = Object.entries(allIcons)
+        .slice(displayedIcons.length, displayedIcons.length + ICONS_PER_LOAD)
+        .filter(([name]) => name.startsWith(currentLibrary));
+
+      if (icons.length > 0) {
+        setDisplayedIcons(prev => [...prev, ...icons]);
+      } else {
+        // Move to next library if current one is exhausted
+        setCurrentLibraryIndex(prev => prev + 1);
+      }
+    } catch (error) {
+      console.error('Error loading icons:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <>
       {/* Desktop Sidebar */}
-      <div className="hidden lg:block h-screen bg-black text-white w-full">
+      <div className="hidden lg:block h-screen bg-black text-white w-full overflow-y-auto scrollbar-none">
         <div className="p-4 flex justify-start">
           <Link to="/">
             <img src={Logo} alt="Logo" className="h-12 w-auto" />
@@ -332,7 +372,7 @@ const SideBar = () => {
             <FaIcons.FaTimes className="text-2xl" />
           </button>
         </div>
-        <div className="overflow-y-auto h-[calc(100vh-4rem)]">
+        <div className="overflow-y-auto h-[calc(100vh-4rem)] scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
           {renderSidebarContent()}
         </div>
       </div>

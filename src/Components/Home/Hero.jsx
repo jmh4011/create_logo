@@ -16,7 +16,7 @@ const Hero = () => {
   const content = HERO_CONTENT[currentLang]; 
 
   return (
-    <div className="border-b border-neutral-900 pb-4" id="home">
+    <div className="border-b border-neutral-900 pb-4 mt-24" id="home">
       <div className="flex flex-wrap">
         <div className="w-full lg:w-1/2">
           <div className="flex flex-col items-center lg:items-start">

@@ -17,7 +17,7 @@ const Technologies = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="mb-14 grid grid-cols-2 md:flex md:flex-wrap items-center justify-center gap-6"
+        className="grid grid-cols-2 md:flex md:flex-wrap items-center justify-center gap-6"
       >
         <motion.div
           whileHover={{ scale: 1.1 }}
