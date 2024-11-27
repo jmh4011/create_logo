@@ -1,172 +1,147 @@
 import React, { useState, useCallback } from "react";
+import useCanvas from "../../features/canvas/useCanvas";
+import { RgbaStringColorPicker } from "react-colorful";
 
-const DetailMenu = ({
-  id,
-  position,
-  canvasObject,
-  setCanvasObject,
-  onClose,
-  onDelete,
-}) => {
+const DetailMenu = ({ id, position }) => {
+  const { shapes, updateShape, removeShape } = useCanvas();
   const [showSubMenu, setShowSubMenu] = useState(null);
-  let hoverTimer;
+  const [sidePosition, setSidePosition] = useState(null);
 
-  const handleMouseEnter = (idx) => {
-    hoverTimer = setTimeout(() => setShowSubMenu(idx), 500);
+  const shape = shapes[id];
+
+  const setShape = useCallback(
+    (properties) => {
+      updateShape(id, properties);
+    },
+    [id, updateShape]
+  );
+
+  const deleteShape = useCallback(() => {
+    removeShape(id);
+  }, [id, removeShape]);
+
+  const handleMouseEnter = (e, menuId) => {
+    const rect = e.target.getBoundingClientRect();
+    setShowSubMenu(menuId);
+    setSidePosition({ x: rect.right, y: rect.top });
   };
 
-  const handleMouseLeave = () => {
-    clearTimeout(hoverTimer);
-    setShowSubMenu(null);
-  };
+  const SubMenu = ({ children }) =>
+    showSubMenu && (
+      <div
+        style={{
+          position: "fixed",
+          left: sidePosition?.x,
+          top: sidePosition?.y,
+          backgroundColor: "rgb(255,255,255)",
+          border: "1px solid gray",
+          padding: "8px",
+        }}
+      >
+        {children}
+      </div>
+    );
 
-  const handleChange = (key, value) => {
-    setCanvasObject({
-      ...canvasObject,
-      [key]: value,
-    });
-  };
+  const InputField = ({ label, value, onChange }) => (
+    <div>
+      {label}:
+      <input
+        type="number"
+        defaultValue={value}
+        onChange={(e) => onChange(+e.target.value)}
+        style={{ marginLeft: "4px" }}
+      />
+    </div>
+  );
 
-  const handleDelete = useCallback(() => {
-    onClose();
-    onDelete();
-  }, [onDelete]);
+  const MenuItem = ({ label, menuId, onClick }) => (
+    <div
+      style={{
+        backgroundColor: "rgb(255,255,255)",
+        border: "1px solid gray",
+        padding: "8px",
+        marginTop: "4px",
+        cursor: menuId ? "pointer" : "default",
+        color: menuId === "delete" ? "red" : "inherit",
+      }}
+      onMouseEnter={menuId && ((e) => handleMouseEnter(e, menuId))}
+      onClick={onClick}
+    >
+      {label}
+    </div>
+  );
 
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         left: position.x,
         top: position.y,
-        backgroundColor: "rgba(0,0,0,0)",
-        zIndex: 1000,
-        display: "grid",
-        gridTemplateRows: "1fr auto", // 1행은 기본 메뉴, 2행은 서브 메뉴
-        gridTemplateColumns: "1fr auto",
+        backgroundColor: "rgba(0,0,0,0.8)",
+        padding: "8px",
+        zIndex: 10,
       }}
     >
-      {/* 기본 메뉴 */}
-      <div
-        style={{
-          gridColumn: 1,
-          gridRow: 1, // ID는 전체 가로 너비 차지
-          backgroundColor: "rgb(255,255,255)",
-          border: "1px solid gray",
-        }}
-      >
-        Object ID: {id}
-      </div>
-      <div
-        style={{
-          gridColumn: 1,
-          gridRow: 2,
-          backgroundColor: "rgb(255,255,255)",
-          border: "1px solid gray",
-        }}
-        onMouseEnter={() => handleMouseEnter(1)}
-      >
-        position
-      </div>
-      <div
-        style={{
-          gridColumn: 1,
-          gridRow: 3,
-          backgroundColor: "rgb(255,255,255)",
-          border: "1px solid gray",
-        }}
-        onMouseEnter={() => handleMouseEnter(2)}
-      >
-        size
-      </div>
-      <div
-        style={{
-          gridColumn: 1,
-          gridRow: 4,
-          backgroundColor: "rgb(255,255,255)",
-          border: "1px solid gray",
-          cursor: "pointer",
-          color: "red",
-        }}
-        onClick={handleDelete}
-      >
-        Delete
-      </div>
+      <MenuItem label={`Object ID: ${id}`} />
 
-      {/* 서브 메뉴 */}
-      {showSubMenu === 1 && (
-        <div
-          style={{
-            gridColumn: 2,
-            gridRow: "2 / 4",
-            backgroundColor: "rgb(255,255,255)",
-            border: "1px solid gray",
-          }}
-        >
-          <div>
-            x:
-            <input
-              type="number"
-              defaultValue={canvasObject.position.x}
-              onChange={(e) =>
-                handleChange("position", {
-                  ...canvasObject.position,
-                  x: +e.target.value,
-                })
-              }
-            />
-          </div>
-          <div>
-            y:
-            <input
-              type="number"
-              defaultValue={canvasObject.position.y}
-              onChange={(e) =>
-                handleChange("position", {
-                  ...canvasObject.position,
-                  y: +e.target.value,
-                })
-              }
-            />
-          </div>
-        </div>
+      <MenuItem label="Position" menuId="position" />
+      <MenuItem label="Size" menuId="size" />
+      <MenuItem label="Color" menuId="color" />
+      <MenuItem label="Delete" menuId="delete" onClick={deleteShape} />
+
+      {showSubMenu === "position" && (
+        <SubMenu>
+          <InputField
+            label="X"
+            value={shape.position.x}
+            onChange={(x) =>
+              setShape({
+                position: { x, y: shape.position.y },
+              })
+            }
+          />
+          <InputField
+            label="Y"
+            value={shape.position.y}
+            onChange={(y) =>
+              setShape({
+                position: { x: shape.position.x, y },
+              })
+            }
+          />
+        </SubMenu>
       )}
 
-      {showSubMenu === 2 && (
-        <div
-          style={{
-            gridColumn: 3,
-            gridRow: "3 / 5",
-            backgroundColor: "rgb(255,255,255)",
-            border: "1px solid gray",
-          }}
-        >
-          <div>
-            width:
-            <input
-              type="number"
-              defaultValue={canvasObject.size.width}
-              onChange={(e) =>
-                handleChange("size", {
-                  ...canvasObject.size,
-                  width: +e.target.value,
-                })
-              }
-            />
-          </div>
-          <div>
-            height:
-            <input
-              type="number"
-              defaultValue={canvasObject.size.height}
-              onChange={(e) =>
-                handleChange("size", {
-                  ...canvasObject.size,
-                  height: +e.target.value,
-                })
-              }
-            />
-          </div>
-        </div>
+      {showSubMenu === "size" && (
+        <SubMenu>
+          <InputField
+            label="Width"
+            value={shape.size.x}
+            onChange={(x) =>
+              setShape({
+                size: { x, y: shape.size.y },
+              })
+            }
+          />
+          <InputField
+            label="Height"
+            value={shape.size.y}
+            onChange={(y) =>
+              setShape({
+                size: { x: shape.size.x, y },
+              })
+            }
+          />
+        </SubMenu>
+      )}
+
+      {showSubMenu === "color" && (
+        <SubMenu>
+          <RgbaStringColorPicker
+            color={shape.color}
+            onChange={(value) => setShape({ color: value })}
+          />
+        </SubMenu>
       )}
     </div>
   );

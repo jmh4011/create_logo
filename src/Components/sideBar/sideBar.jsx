@@ -26,6 +26,7 @@ import * as FcIcons from "react-icons/fc";
 import * as GiIcons from "react-icons/gi";
 import * as SlIcons from "react-icons/sl";
 import * as TbIcons from "react-icons/tb";
+import DetailMenu from "../Canvas/DetailMenu";
 
 const modeButtons = [
   { mode: null, icon: <FaIcons.FaMousePointer />, label: "Select" },
@@ -74,6 +75,14 @@ const SideBar = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(0);
   const ICONS_PER_PAGE = 24;
+
+  const [selectedElement, setSelectedElement] = useState(null);
+
+  const handleSelectShape = (event, id) => {
+    selectShape(id);
+    const rect = event.target.getBoundingClientRect();
+    setSelectedElement({ x: rect.right, y: rect.top });
+  };
 
   const allIcons = useMemo(() => {
     const icons = [];
@@ -266,7 +275,7 @@ const SideBar = () => {
             {shapeIds.map((id) => (
               <div
                 key={id}
-                onClick={() => selectShape(id)}
+                onClick={(e) => handleSelectShape(e, id)}
                 className={`flex items-center px-4 py-3 cursor-pointer transition-colors duration-200 hover:bg-gray-800 ${
                   id === selectedShapeId ? "bg-gray-700" : "bg-black"
                 }`}
@@ -394,6 +403,10 @@ const SideBar = () => {
           className="lg:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
           onClick={toggleSidebar}
         />
+      )}
+
+      {selectedElement && (
+        <DetailMenu id={selectedShapeId} position={selectedElement} />
       )}
     </>
   );

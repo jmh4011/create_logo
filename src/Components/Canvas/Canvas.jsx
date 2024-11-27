@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Shape from "../Shape/Shape";
-import DetailMenu from "./DetailMenu";
 import useCanvas from "../../features/canvas/useCanvas";
 import useMode from "../../features/mode/useMode";
+import ContextMenu from "./ContextMenu";
 
 const Canvas = () => {
   const {
@@ -18,6 +18,8 @@ const Canvas = () => {
   const { mode, selectedIcon, resetMode } = useMode();
   const [isDrawing, setIsDrawing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const [contextShapeId, setContextShapeId] = useState(null);
   const [menuPosition, setMenuPosition] = useState(null);
 
   const [dragCreateMode, setDragCreateMode] = useState(true);
@@ -30,7 +32,6 @@ const Canvas = () => {
     const startY = e.clientY - canvasRect.top;
 
     setDragStart({ x: startX, y: startY });
-    if (!menuPosition) closeDetailMenu();
 
     if (mode === null) {
       setIsDrawing(false);
@@ -208,21 +209,13 @@ const Canvas = () => {
     resetMode();
   };
 
-  const openDetailMenu = (e, id) => {
+  const openContextMenu = (e, id) => {
     e.preventDefault();
-    const canvasRect = e.currentTarget.getBoundingClientRect();
-    const currentX = e.clientX - canvasRect.left;
-    const currentY = e.clientY - canvasRect.top;
-    selectShape(id);
+    setContextShapeId(id);
     setMenuPosition({
-      x: currentX,
-      y: currentY,
+      x: e.clientX,
+      y: e.clientY,
     });
-  };
-
-  const closeDetailMenu = () => {
-    setMenuPosition(null);
-    selectShape(null);
   };
 
   return (
@@ -239,19 +232,17 @@ const Canvas = () => {
 
       {shapeIds &&
         shapeIds.map((id) => (
-          <div onContextMenu={(e) => openDetailMenu(e, id)} key={id}>
+          <div onContextMenu={(e) => openContextMenu(e, id)} key={id}>
             <Shape id={id} />
           </div>
         ))}
 
-      {menuPosition && selectedShapeId !== null && (
+      {menuPosition && contextShapeId !== null && (
         <div onMouseDown={(e) => e.stopPropagation()}>
-          <DetailMenu
-            id={selectedShapeId}
+          <ContextMenu
+            id={contextShapeId}
             position={menuPosition}
-            shape={shapes[selectedShapeId]}
-            onClose={closeDetailMenu}
-            onDelete={() => removeShape(selectedShapeId)}
+            onClose={() => setContextShapeId(null)}
           />
         </div>
       )}
