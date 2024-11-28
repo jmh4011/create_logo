@@ -27,6 +27,7 @@ import * as GiIcons from "react-icons/gi";
 import * as SlIcons from "react-icons/sl";
 import * as TbIcons from "react-icons/tb";
 import DetailMenu from "../Canvas/DetailMenu";
+import { use } from "framer-motion/client";
 
 const modeButtons = [
   { mode: null, icon: <FaIcons.FaMousePointer />, label: "Select" },
@@ -338,10 +339,8 @@ const SideBar = () => {
       {renderIconsSection()}
     </div>
   );
-
   const changeMode = (newMode) => {
     setMode(newMode);
-    setSelectedIcon(null);
   };
 
   const toggleSidebar = useCallback(() => {

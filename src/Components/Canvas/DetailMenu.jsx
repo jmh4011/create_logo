@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, memo, useEffect, useRef } from "react";
 import useCanvas from "../../features/canvas/useCanvas";
 import { RgbaStringColorPicker } from "react-colorful";
 
@@ -6,6 +6,8 @@ const DetailMenu = ({ id, position }) => {
   const { shapes, updateShape, removeShape } = useCanvas();
   const [showSubMenu, setShowSubMenu] = useState(null);
   const [sidePosition, setSidePosition] = useState(null);
+  const [focusInput, setFocusInput] = useState();
+  const [cursorPosition, setCursorPosition] = useState(null);
 
   const shape = shapes[id];
 
@@ -42,16 +44,46 @@ const DetailMenu = ({ id, position }) => {
       </div>
     );
 
-  const InputField = ({ label, value, onChange }) => (
-    <div>
-      {label}:
-      <input
-        type="number"
-        defaultValue={value}
-        onChange={(e) => onChange(+e.target.value)}
-        style={{ marginLeft: "4px" }}
-      />
-    </div>
+  const InputField = memo(
+    ({ inputKey, label, value, onChange }) => {
+      const inputRef = useRef();
+
+      const handleChange = (e) => {
+        if (!/^-?\d*$/.test(e.target.value)) return;
+        setFocusInput(inputKey);
+        const cursorPos = e.target.selectionStart;
+        setCursorPosition(cursorPos);
+        onChange(+e.target.value);
+      };
+
+      useEffect(() => {
+        if (
+          document.activeElement !== inputRef.current &&
+          inputKey === focusInput
+        ) {
+          inputRef.current.focus();
+
+          // 이전에 저장한 커서 위치를 복원
+          if (cursorPosition !== null) {
+            inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
+          }
+        }
+      }, [value, focusInput, cursorPosition]);
+
+      return (
+        <div>
+          {label}:
+          <input
+            ref={inputRef}
+            type="text"
+            value={value}
+            onChange={handleChange}
+            style={{ marginLeft: "4px" }}
+          />
+        </div>
+      );
+    },
+    (prevProps, nextProps) => prevProps.value === nextProps.value
   );
 
   const MenuItem = ({ label, menuId, onClick }) => (
@@ -92,6 +124,7 @@ const DetailMenu = ({ id, position }) => {
       {showSubMenu === "position" && (
         <SubMenu>
           <InputField
+            inputKey={1}
             label="X"
             value={shape.position.x}
             onChange={(x) =>
@@ -101,6 +134,7 @@ const DetailMenu = ({ id, position }) => {
             }
           />
           <InputField
+            inputKey={2}
             label="Y"
             value={shape.position.y}
             onChange={(y) =>
@@ -115,7 +149,8 @@ const DetailMenu = ({ id, position }) => {
       {showSubMenu === "size" && (
         <SubMenu>
           <InputField
-            label="Width"
+            inputKey={3}
+            label="X"
             value={shape.size.x}
             onChange={(x) =>
               setShape({
@@ -124,7 +159,8 @@ const DetailMenu = ({ id, position }) => {
             }
           />
           <InputField
-            label="Height"
+            inputKey={4}
+            label="Y"
             value={shape.size.y}
             onChange={(y) =>
               setShape({

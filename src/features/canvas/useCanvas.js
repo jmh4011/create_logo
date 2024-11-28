@@ -23,7 +23,24 @@ const useCanvas = () => {
 
   const updateShape = useCallback(
     (id, properties) => {
-      dispatch(updateObject({ id, properties }));
+      // position과 size 속성을 정수로 변환
+      const normalizedProperties = { ...properties };
+
+      if (normalizedProperties.position) {
+        normalizedProperties.position = {
+          x: Math.round(normalizedProperties.position.x),
+          y: Math.round(normalizedProperties.position.y),
+        };
+      }
+
+      if (normalizedProperties.size) {
+        normalizedProperties.size = {
+          x: Math.round(normalizedProperties.size.x),
+          y: Math.round(normalizedProperties.size.y),
+        };
+      }
+
+      dispatch(updateObject({ id, properties: normalizedProperties }));
     },
     [dispatch]
   );
