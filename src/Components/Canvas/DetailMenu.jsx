@@ -22,39 +22,49 @@ const DetailMenu = ({ id, position }) => {
     removeShape(id);
   }, [id, removeShape]);
 
-  const handleMouseEnter = (e, menuId) => {
+  const handleMouseEnter = useCallback((e, menuId) => {
     const rect = e.target.getBoundingClientRect();
     setShowSubMenu(menuId);
     setSidePosition({ x: rect.right, y: rect.top });
+  }, []);
+
+  // 스타일 객체를 컴포넌트 외부에서 정의하여 재사용
+  const subMenuStyle = {
+    position: "fixed",
+    backgroundColor: "rgb(255,255,255)",
+    border: "1px solid gray",
+    padding: "8px",
   };
 
-  const SubMenu = ({ children }) =>
-    showSubMenu && (
-      <div
-        style={{
-          position: "fixed",
-          left: sidePosition?.x,
-          top: sidePosition?.y,
-          backgroundColor: "rgb(255,255,255)",
-          border: "1px solid gray",
-          padding: "8px",
-        }}
-      >
-        {children}
-      </div>
-    );
+  const SubMenu = memo(
+    ({ children }) =>
+      showSubMenu && (
+        <div
+          style={{
+            ...subMenuStyle,
+            left: sidePosition?.x,
+            top: sidePosition?.y,
+          }}
+        >
+          {children}
+        </div>
+      )
+  );
 
   const InputField = memo(
     ({ inputKey, label, value, onChange }) => {
       const inputRef = useRef();
 
-      const handleChange = (e) => {
-        if (!/^-?\d*$/.test(e.target.value)) return;
-        setFocusInput(inputKey);
-        const cursorPos = e.target.selectionStart;
-        setCursorPosition(cursorPos);
-        onChange(+e.target.value);
-      };
+      const handleChange = useCallback(
+        (e) => {
+          if (!/^-?\d*$/.test(e.target.value)) return;
+          setFocusInput(inputKey);
+          const cursorPos = e.target.selectionStart;
+          setCursorPosition(cursorPos);
+          onChange(+e.target.value);
+        },
+        [inputKey, onChange]
+      );
 
       useEffect(() => {
         if (
@@ -68,7 +78,7 @@ const DetailMenu = ({ id, position }) => {
             inputRef.current.setSelectionRange(cursorPosition, cursorPosition);
           }
         }
-      }, [value, focusInput, cursorPosition]);
+      }, [value, focusInput, cursorPosition, inputKey]);
 
       return (
         <div>
@@ -83,24 +93,76 @@ const DetailMenu = ({ id, position }) => {
         </div>
       );
     },
-    (prevProps, nextProps) => prevProps.value === nextProps.value
+    (prevProps, nextProps) =>
+      prevProps.value === nextProps.value &&
+      prevProps.onChange === nextProps.onChange
   );
 
-  const MenuItem = ({ label, menuId, onClick }) => (
-    <div
-      style={{
-        backgroundColor: "rgb(255,255,255)",
-        border: "1px solid gray",
-        padding: "8px",
-        marginTop: "4px",
-        cursor: menuId ? "pointer" : "default",
-        color: menuId === "delete" ? "red" : "inherit",
-      }}
-      onMouseEnter={menuId && ((e) => handleMouseEnter(e, menuId))}
-      onClick={onClick}
-    >
-      {label}
-    </div>
+  const ColorField = memo(
+    ({ color, onChange }) => {
+      return <RgbaStringColorPicker color={color} onChange={onChange} />;
+    },
+    (prevProps, nextProps) =>
+      prevProps.color === nextProps.color &&
+      prevProps.onChange === nextProps.onChange
+  );
+
+  // onChange 핸들러를 useCallback으로 메모이제이션
+  const handleColorChange = useCallback(
+    (value) => setShape({ color: value }),
+    [setShape]
+  );
+
+  const D2Input = memo(({ value, onChange }) => {
+    const handleXChange = useCallback(
+      (x) => onChange({ x, y: value.y }),
+      [onChange, value.y]
+    );
+
+    const handleYChange = useCallback(
+      (y) => onChange({ x: value.x, y }),
+      [onChange, value.x]
+    );
+
+    return (
+      <>
+        <InputField
+          inputKey={1}
+          label="X"
+          value={value.x}
+          onChange={handleXChange}
+        />
+        <InputField
+          inputKey={2}
+          label="Y"
+          value={value.y}
+          onChange={handleYChange}
+        />
+      </>
+    );
+  });
+
+  const MenuItem = memo(
+    ({ label, menuId, onClick }) => (
+      <div
+        style={{
+          backgroundColor: "rgb(255,255,255)",
+          border: "1px solid gray",
+          padding: "8px",
+          marginTop: "4px",
+          cursor: menuId ? "pointer" : "default",
+          color: menuId === "delete" ? "red" : "inherit",
+        }}
+        onMouseEnter={menuId ? (e) => handleMouseEnter(e, menuId) : undefined}
+        onClick={onClick}
+      >
+        {label}
+      </div>
+    ),
+    (prevProps, nextProps) =>
+      prevProps.label === nextProps.label &&
+      prevProps.menuId === nextProps.menuId &&
+      prevProps.onClick === nextProps.onClick
   );
 
   return (
@@ -115,67 +177,79 @@ const DetailMenu = ({ id, position }) => {
       }}
     >
       <MenuItem label={`Object ID: ${id}`} />
-
-      <MenuItem label="Position" menuId="position" />
-      <MenuItem label="Size" menuId="size" />
+      {shape.type !== "line" ? (
+        <>
+          <MenuItem label="Position" menuId="position" />
+          <MenuItem label="Size" menuId="size" />
+        </>
+      ) : (
+        <>
+          <MenuItem label="StartPoint" menuId="startPoint" />
+          <MenuItem label="EndPoint" menuId="endPoint" />
+          <MenuItem label="Thickness" menuId="thickness" />
+        </>
+      )}
       <MenuItem label="Color" menuId="color" />
       <MenuItem label="Delete" menuId="delete" onClick={deleteShape} />
 
       {showSubMenu === "position" && (
         <SubMenu>
-          <InputField
-            inputKey={1}
-            label="X"
-            value={shape.position.x}
-            onChange={(x) =>
-              setShape({
-                position: { x, y: shape.position.y },
-              })
-            }
-          />
-          <InputField
-            inputKey={2}
-            label="Y"
-            value={shape.position.y}
-            onChange={(y) =>
-              setShape({
-                position: { x: shape.position.x, y },
-              })
-            }
+          <D2Input
+            value={shape.position}
+            onChange={(val) => {
+              setShape({ position: val });
+            }}
           />
         </SubMenu>
       )}
 
       {showSubMenu === "size" && (
         <SubMenu>
-          <InputField
-            inputKey={3}
-            label="X"
-            value={shape.size.x}
-            onChange={(x) =>
-              setShape({
-                size: { x, y: shape.size.y },
-              })
-            }
-          />
-          <InputField
-            inputKey={4}
-            label="Y"
-            value={shape.size.y}
-            onChange={(y) =>
-              setShape({
-                size: { x: shape.size.x, y },
-              })
-            }
+          <D2Input
+            value={shape.size}
+            onChange={(val) => {
+              setShape({ size: val });
+            }}
           />
         </SubMenu>
       )}
 
       {showSubMenu === "color" && (
         <SubMenu>
-          <RgbaStringColorPicker
-            color={shape.color}
-            onChange={(value) => setShape({ color: value })}
+          <ColorField color={shape.color} onChange={handleColorChange} />
+        </SubMenu>
+      )}
+
+      {showSubMenu === "startPoint" && (
+        <SubMenu>
+          <D2Input
+            value={shape.startPoint}
+            onChange={(val) => {
+              setShape({ startPoint: val });
+            }}
+          />
+        </SubMenu>
+      )}
+      {showSubMenu === "endPoint" && (
+        <SubMenu>
+          <D2Input
+            value={shape.endPoint}
+            onChange={(val) => {
+              setShape({ endPoint: val });
+            }}
+          />
+        </SubMenu>
+      )}
+
+      {showSubMenu === "thickness" && (
+        <SubMenu>
+          <InputField
+            inputKey={1}
+            label={"thickness"}
+            value={shape.thickness}
+            onChange={(val) => {
+              setShape({ thickness: val });
+            }}
           />
         </SubMenu>
       )}

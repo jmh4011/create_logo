@@ -40,6 +40,25 @@ const useCanvas = () => {
         };
       }
 
+      if (normalizedProperties.startPoint) {
+        normalizedProperties.startPoint = {
+          x: Math.round(normalizedProperties.startPoint.x),
+          y: Math.round(normalizedProperties.startPoint.y),
+        };
+      }
+
+      if (normalizedProperties.endPoint) {
+        normalizedProperties.endPoint = {
+          x: Math.round(normalizedProperties.endPoint.x),
+          y: Math.round(normalizedProperties.endPoint.y),
+        };
+      }
+      if (normalizedProperties.thickness) {
+        normalizedProperties.thickness = Math.round(
+          normalizedProperties.thickness
+        );
+      }
+
       dispatch(updateObject({ id, properties: normalizedProperties }));
     },
     [dispatch]
