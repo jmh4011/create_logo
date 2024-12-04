@@ -9,7 +9,7 @@ const Canvas = () => {
     shapes,
     shapeIds,
     selectedShapeId,
-    addShape,
+    createShape,
     updateShape,
     removeShape,
     selectShape,
@@ -38,14 +38,20 @@ const Canvas = () => {
       return;
     }
     setIsDrawing(true);
-    let id = shapeIds.length > 0 ? Math.max(...shapeIds) + 1 : 0;
-    setDraggingShapeId(id);
 
-    if (dragCreateMode) {
-      dragCreate(id, startX, startY);
-    } else {
-      basicCreate(id, startX, startY);
+    let customProperties = {};
+    if (mode === "icon") {
+      customProperties = {
+        iconName: selectedIcon,
+      };
     }
+
+    let shapeId = createShape(
+      mode,
+      { x: startX, y: startY },
+      customProperties
+    ).id;
+    setDraggingShapeId(shapeId);
   };
 
   const dragCreate = (id, startX, startY) => {
@@ -88,7 +94,7 @@ const Canvas = () => {
           type: mode,
           position: { x: startX, y: startY },
           size: { x: 0, y: 0 },
-          color: "rgb(255,255,255)",
+          color: "rgba(255,255,255, 0)",
           iconName: selectedIcon,
         });
         break;

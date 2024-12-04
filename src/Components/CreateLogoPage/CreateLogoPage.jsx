@@ -1,7 +1,7 @@
 import React from "react";
 import { Helmet } from "react-helmet-async";
 import { Navigate } from "react-router-dom";
-import SideBar from "../SideBar/SideBar";
+import SideBar from "../sideBar/sideBarTmp";
 import MainPage from "../MainPage/MainPage";
 import { useDetectAdBlock } from "adblock-detect-react";
 

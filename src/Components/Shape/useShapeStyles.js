@@ -31,7 +31,10 @@ const useShapeStyles = (shape, isSelected) => {
     position: "absolute",
     width: `${handleSize}px`,
     height: `${handleSize}px`,
-    backgroundColor: "blue",
+    backgroundColor: "rgb(255,255,255)",
+    borderWidth: "3px", // 테두리 두께
+    borderStyle: "solid", // 테두리 스타일
+    borderColor: "rgb(0,0,0)",
     zIndex: 2,
   };
 
@@ -193,20 +196,11 @@ const useShapeStyles = (shape, isSelected) => {
     };
 
     borderBox = {
+      ...borderBox,
       left: shape.position?.x || 0,
       top: shape.position?.y || 0,
       width: shape.size?.x || 0,
       height: shape.size?.y || 0,
-      borderWidth: "1px", // 테두리 두께
-      borderStyle: "solid", // 테두리 스타일
-      borderImage: `
-        repeating-linear-gradient(
-          45deg, 
-          black, black 5px, white 5px, white 10px
-        ) 10 stretch
-      `,
-      borderImageSlice: 1,
-      backgroundColor: "rgba(0,0,0,0)",
     };
   }
   return {
