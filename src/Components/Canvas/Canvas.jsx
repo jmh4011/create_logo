@@ -226,6 +226,7 @@ const Canvas = () => {
 
   return (
     <div
+      id="drawing-canvas"
       className="relative w-full h-full border border-black select-none bg-white"
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
