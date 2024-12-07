@@ -41,7 +41,7 @@ const SideBar = () => {
   };
 
   const renderSidebarContent = () => (
-    <div className="w-full h-full flex flex-col space-y-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+    <div className="w-full h-full flex flex-col space-y-4 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
       <div className="px-4 py-2">
         <button 
           onClick={handleSaveClick}
@@ -65,8 +65,7 @@ const SideBar = () => {
   return (
     <>
       <div
-        className="hidden lg:block h-screen bg-black text-white w-full 
-        overflow-y-auto scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-800"
+        className="hidden lg:block h-screen bg-black text-white w-full"
       >
         <div className="p-4 flex justify-start">
           <Link to="/">
@@ -101,8 +100,7 @@ const SideBar = () => {
           </button>
         </div>
         <div
-          className="overflow-y-auto h-[calc(100vh-4rem)] 
-          scrollbar scrollbar-track-gray-800 scrollbar-thumb-gray-600"
+          className="overflow-y-auto overflow-x-hidden h-[calc(100vh-4rem)] scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100"
         >
           {renderSidebarContent()}
         </div>

@@ -17,8 +17,7 @@ const CreateLogoPage = () => {
       <Helmet>
         <title>LogoHub - Create Logo</title>
       </Helmet>
-      <div className="h-screen w-screen">
-        {/* Desktop Layout */}
+      <div className="h-screen w-screen overflow-hidden">
         <div className="hidden lg:grid lg:grid-cols-10 h-full">
           <div className="col-span-2 bg-black h-full">
             <SideBar />
@@ -28,7 +27,6 @@ const CreateLogoPage = () => {
           </div>
         </div>
 
-        {/* Mobile & Tablet Layout */}
         <div className="lg:hidden flex flex-col h-full">
           <SideBar />
           <div className="bg-white text-black h-full w-full pt-16">
