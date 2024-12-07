@@ -5,14 +5,16 @@ import * as FaIcons from "react-icons/fa";
 import Shapes from "./shapes";
 import Tools from "./Tools";
 import Icons from "./Icons";
+import Detail from "./Detail";
 
 const SideBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const renderSidebarContent = () => (
-    <div className="w-full h-full flex flex-col space-y-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+    <div className="w-full flex flex-col space-y-4 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
       <Shapes />
       <Tools />
+      <Detail />
       <Icons />
     </div>
   );
@@ -25,7 +27,7 @@ const SideBar = () => {
       {/* Desktop Sidebar */}
       <div
         className="hidden lg:block h-screen bg-black text-white w-full 
-        overflow-y-auto scrollbar scrollbar-track-gray-900 scrollbar-thumb-gray-800"
+        overflow-y-auto scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-800"
       >
         <div className="p-4 flex justify-start">
           <Link to="/">

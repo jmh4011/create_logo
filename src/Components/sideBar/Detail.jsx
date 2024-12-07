@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import useCanvas from "../../features/canvas/useCanvas";
 import { RgbaStringColorPicker } from "react-colorful";
 
-const ShapeDetail = ({ shapeId }) => {
-  const { shapes, updateShape } = useCanvas();
+const Detail = () => {
+  const { shapes, selectedShapeId, selectShape, updateShape } = useCanvas();
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
 
-  let shape = shapes[shapeId];
+  let shape = shapes[selectedShapeId];
 
   const handleChange = (label, value) => {
-    updateShape(shapeId, { [label]: value });
+    updateShape(selectedShapeId, { [label]: value });
   };
 
   const InputFieldText = ({ label }) => {
@@ -41,7 +42,7 @@ const ShapeDetail = ({ shapeId }) => {
     return (
       <div>
         <button
-          onClick={() => setIsOpen(!isLayersOpen)}
+          onClick={() => setIsOpen(!isOpen)}
           className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
         >
           <span className="text-xl font-medium">
@@ -204,12 +205,29 @@ const ShapeDetail = ({ shapeId }) => {
   };
 
   return (
-    <div>
-      <InputField2D label={"position"} />
-      <InputField2D label={"size"} />
-      <InputFieldColor label={"color"} />
+    <div className="w-full px-4">
+      <button
+        onClick={() => setIsDetailOpen(!isDetailOpen)}
+        className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
+      >
+        <span className="text-xl font-medium">Detail</span>
+        <span
+          className={`transform transition-transform ${
+            isDetailOpen ? "rotate-180" : ""
+          }`}
+        >
+          ▼
+        </span>
+      </button>
+      {selectedShapeId && isDetailOpen && (
+        <div className="w-full h-80 border border-white mt-2 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800">
+          <InputField2D label={"position"} />
+          <InputField2D label={"size"} />
+          <InputFieldColor label={"color"} />
+        </div>
+      )}
     </div>
   );
 };
 
-export default ShapeDetail;
+export default Detail;
