@@ -6,6 +6,7 @@ import Shapes from "./shapes";
 import Tools from "./Tools";
 import Icons from "./Icons";
 import html2canvas from 'html2canvas';
+import Detail from "./Detail";
 
 const SideBar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -53,6 +54,7 @@ const SideBar = () => {
       </div>
       <Shapes />
       <Tools />
+      <Detail />
       <Icons />
     </div>
   );
@@ -64,7 +66,7 @@ const SideBar = () => {
     <>
       <div
         className="hidden lg:block h-screen bg-black text-white w-full 
-        overflow-y-auto scrollbar scrollbar-track-gray-900 scrollbar-thumb-gray-800"
+        overflow-y-auto scrollbar-thin scrollbar-track-gray-900 scrollbar-thumb-gray-800"
       >
         <div className="p-4 flex justify-start">
           <Link to="/">

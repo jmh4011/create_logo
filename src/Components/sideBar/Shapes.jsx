@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import useCanvas from "../../features/canvas/useCanvas";
-import ShapeDetail from "./ShapeDetail";
+import ShapeDetail from "./Detail";
 
 const Shapes = () => {
   const [isLayersOpen, setIsLayersOpen] = useState(true);
@@ -59,7 +59,6 @@ const Shapes = () => {
                   {shapes[id].name}
                 </span>
               </div>
-              {isDetailMenuHash[id] && <ShapeDetail shapeId={id} />}
             </div>
           ))}
         </div>
