@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import useCanvas from "../../features/canvas/useCanvas";
 import ShapeDetail from "./Detail";
 
-const Shapes = () => {
+const Layers = () => {
   const [isLayersOpen, setIsLayersOpen] = useState(true);
   const [selectedElement, setSelectedElement] = useState(null);
   const { shapes, shapeIds, selectedShapeId, selectShape, removeShape } =
@@ -73,4 +73,4 @@ const Shapes = () => {
   );
 };
 
-export default Shapes;
+export default Layers;

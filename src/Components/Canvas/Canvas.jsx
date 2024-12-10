@@ -1,37 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import Shape from "../Shape/Shape";
 import useCanvas from "../../features/canvas/useCanvas";
 import useMode from "../../features/mode/useMode";
 import ContextMenu from "./ContextMenu";
 
 const Canvas = () => {
-  const {
-    shapes,
-    shapeIds,
-    selectedShapeId,
-    createShape,
-    updateShape,
-    removeShape,
-    selectShape,
-  } = useCanvas();
-
+  const { shapeIds, createShape, updateShape } = useCanvas();
+  const canvasRef = useRef(null);
   const { mode, selectedIcon, resetMode } = useMode();
   const [isDrawing, setIsDrawing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-
   const [contextShapeId, setContextShapeId] = useState(null);
   const [menuPosition, setMenuPosition] = useState(null);
-
-  const [dragCreateMode, setDragCreateMode] = useState(true);
-
   const [draggingShapeId, setDraggingShapeId] = useState(null);
 
-  const handleMouseDown = (e) => {
-    const canvasRect = e.currentTarget.getBoundingClientRect();
-    const startX = e.clientX - canvasRect.left;
-    const startY = e.clientY - canvasRect.top;
+  const fixelToPercent = useCallback((e) => {
+    const div = e.currentTarget;
+    const rect = div.getBoundingClientRect();
 
-    setDragStart({ x: startX, y: startY });
+    const clickX = e.clientX - rect.left; // div의 좌측으로부터의 클릭 위치
+    const clickY = e.clientY - rect.top; // div의 상단으로부터의 클릭 위치
+
+    const x = (clickX / rect.width) * 100;
+    const y = (clickY / rect.height) * 100;
+
+    return { x, y };
+  });
+
+  const handleMouseDown = (e) => {
+    const { x, y } = fixelToPercent(e);
+
+    setDragStart({ x, y });
 
     if (mode === null) {
       setIsDrawing(false);
@@ -46,116 +45,16 @@ const Canvas = () => {
       };
     }
 
-    let shapeId = createShape(
-      mode,
-      { x: startX, y: startY },
-      customProperties
-    ).id;
+    let shapeId = createShape(mode, { x, y }, customProperties).id;
     setDraggingShapeId(shapeId);
-  };
-
-  const dragCreate = (id, startX, startY) => {
-    switch (mode) {
-      case "rectangle":
-      case "circle":
-        addShape({
-          id: id,
-          type: mode,
-          position: { x: startX, y: startY },
-          size: { x: 0, y: 0 },
-          color: "rgb(0,0,0)",
-        });
-        break;
-      case "line":
-        addShape({
-          id: id,
-          type: mode,
-          startPoint: { x: startX, y: startY },
-          endPoint: { x: startX, y: startY },
-          thickness: 5,
-          color: "rgb(0,0,0)",
-        });
-        break;
-      case "text":
-        addShape({
-          id: id,
-          type: mode,
-          position: { x: startX, y: startY },
-          size: { x: 0, y: 0 },
-          color: "rgb(255,255,255)",
-          text: "Enter text",
-          fontSize: 16,
-          fontColor: "rgb(0,0,0)",
-        });
-        break;
-      case "icon":
-        addShape({
-          id: id,
-          type: mode,
-          position: { x: startX, y: startY },
-          size: { x: 0, y: 0 },
-          color: "rgba(255,255,255, 0)",
-          iconName: selectedIcon,
-        });
-        break;
-      default:
-        console.warn(`Unknown mode: ${mode}`);
-        break;
-    }
-  };
-
-  const basicCreate = (id, startX, startY) => {
-    switch (mode) {
-      case "rectangle":
-      case "circle":
-        addShape({
-          id: id,
-          type: mode,
-          position: { x: startX, y: startY },
-          size: { x: 100, y: 100 },
-          color: "rgb(0,0,0)",
-        });
-        break;
-      case "line":
-        addShape({
-          id: id,
-          type: mode,
-          startPoint: { x: startX, y: startY },
-          endPoint: { x: startX + 100, y: startY },
-          thickness: 5,
-          color: "rgb(0,0,0)",
-        });
-        break;
-      case "text":
-        addShape({
-          id: id,
-          type: mode,
-          position: { x: startX, y: startY },
-          size: { x: 50, y: 50 },
-          color: "rgb(255,255,255)",
-          text: "Enter text",
-          fontSize: 16,
-          fontColor: "rgb(0,0,0)",
-        });
-        break;
-      default:
-        console.warn(`Unknown mode: ${mode}`);
-        break;
-    }
   };
 
   const handleMouseMove = (e) => {
     if (!isDrawing) return;
 
-    const canvasRect = e.currentTarget.getBoundingClientRect();
-    const currentX = e.clientX - canvasRect.left;
-    const currentY = e.clientY - canvasRect.top;
+    const { x, y } = fixelToPercent(e);
 
-    if (dragCreateMode) {
-      dragMove(currentX, currentY);
-    } else {
-      basicMove(currentX, currentY);
-    }
+    dragMove(x, y);
   };
 
   const dragMove = (currentX, currentY) => {
@@ -176,7 +75,6 @@ const Canvas = () => {
         break;
       case "line":
         updateShape(draggingShapeId, {
-          startPoint: { x: dragStart.x, y: dragStart.y },
           endPoint: { x: currentX, y: currentY },
         });
         break;
@@ -228,19 +126,16 @@ const Canvas = () => {
     <div
       id="drawing-canvas"
       className="relative w-full h-full border border-black select-none bg-white"
+      ref={canvasRef}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
     >
-      <button onClick={() => setDragCreateMode((prevMode) => !prevMode)}>
-        드래그 생성 모드 변경
-      </button>
-
       {shapeIds &&
         shapeIds.map((id) => (
           <div onContextMenu={(e) => openContextMenu(e, id)} key={id}>
-            <Shape id={id} />
+            <Shape id={id} canvasRef={canvasRef} />
           </div>
         ))}
 

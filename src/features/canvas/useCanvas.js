@@ -18,9 +18,7 @@ const useCanvas = () => {
     position: { x: 0, y: 0 },
     size: { x: 0, y: 0 },
     color: { r: 255, g: 255, b: 255, a: 1 },
-    borderWidth: 2,
-    borderStyle: "solid",
-    borderColor: { r: 0, g: 0, b: 0, a: 1 },
+    border: { width: 2, style: "solid", color: { r: 0, g: 0, b: 0, a: 1 } },
   };
 
   const shapeTypes = {
@@ -103,36 +101,35 @@ const useCanvas = () => {
 
       if (normalizedProperties.position) {
         normalizedProperties.position = {
-          x: Math.round(normalizedProperties.position.x),
-          y: Math.round(normalizedProperties.position.y),
-        };
-      }
-
-      if (normalizedProperties.size) {
-        normalizedProperties.size = {
-          x: Math.round(normalizedProperties.size.x),
-          y: Math.round(normalizedProperties.size.y),
+          x: Math.max(
+            Math.min(
+              normalizedProperties.position.x,
+              100 - normalizedProperties.size?.x
+            ),
+            0
+          ),
+          y: Math.max(
+            Math.min(
+              normalizedProperties.position.y,
+              100 - normalizedProperties.size?.y
+            ),
+            0
+          ),
         };
       }
 
       if (normalizedProperties.startPoint) {
         normalizedProperties.startPoint = {
-          x: Math.round(normalizedProperties.startPoint.x),
-          y: Math.round(normalizedProperties.startPoint.y),
+          x: Math.max(Math.min(normalizedProperties.startPoint.x, 100), 0),
+          y: Math.max(Math.min(normalizedProperties.startPoint.y, 100), 0),
         };
       }
 
       if (normalizedProperties.endPoint) {
         normalizedProperties.endPoint = {
-          x: Math.round(normalizedProperties.endPoint.x),
-          y: Math.round(normalizedProperties.endPoint.y),
+          x: Math.max(Math.min(normalizedProperties.endPoint.x, 100), 0),
+          y: Math.max(Math.min(normalizedProperties.endPoint.y, 100), 0),
         };
-      }
-
-      if (normalizedProperties.thickness) {
-        normalizedProperties.thickness = Math.round(
-          normalizedProperties.thickness
-        );
       }
 
       dispatch(updateShapeAction({ id, properties: normalizedProperties }));

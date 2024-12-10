@@ -1,21 +1,44 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
+const BorderBox = ({
+  canvasRef,
+  shape,
+  updateShape,
+  selectShape,
+  isSelected,
+}) => {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeType, setResizeType] = useState(null);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const [dragShapePoint, setDragShapePoint] = useState({ x: 0, y: 0 });
   const [initialShapeState, setInitialShapeState] = useState({});
 
+  const fixelToPercent = (e) => {
+    if (!canvasRef.current) return;
+
+    const rect = canvasRef.current.getBoundingClientRect();
+
+    // 클릭한 위치 계산
+    const clickX = e.clientX - rect.left;
+    const clickY = e.clientY - rect.top;
+
+    // %로 변환
+    const x = (clickX / rect.width) * 100;
+    const y = (clickY / rect.height) * 100;
+
+    return { x, y };
+  };
+
   const handleMouseDown = (e, type) => {
-    e.stopPropagation();
-    e.preventDefault();
     setIsResizing(true);
     setResizeType(type);
-    setDragStart({ x: e.clientX, y: e.clientY });
+
+    const { x, y } = fixelToPercent(e);
+
+    setDragStart({ x, y });
     setDragShapePoint({
-      x: e.clientX - (shape.position?.x || 0),
-      y: e.clientY - (shape.position?.y || 0),
+      x: x - (shape.position?.x || 0),
+      y: y - (shape.position?.y || 0),
     });
     setInitialShapeState({
       position: { ...shape.position },
@@ -34,8 +57,10 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
 
       e.preventDefault();
 
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
+      const { x, y } = fixelToPercent(e);
+
+      const deltaX = x - dragStart.x;
+      const deltaY = y - dragStart.y;
 
       let newPosition = { ...initialShapeState.position };
       let newSize = { ...initialShapeState.size };
@@ -43,8 +68,8 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
       let newEndPoint = { ...initialShapeState.endPoint };
 
       if (shape.type === "line") {
-        const offsetX = e.clientX - dragStart.x;
-        const offsetY = e.clientY - dragStart.y;
+        const offsetX = x - dragStart.x;
+        const offsetY = y - dragStart.y;
         switch (resizeType) {
           case "center":
             newStartPoint.x = initialShapeState.startPoint.x + offsetX;
@@ -75,13 +100,13 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
       } else {
         switch (resizeType) {
           case "center":
-            newPosition.x = e.clientX - dragShapePoint.x;
-            newPosition.y = e.clientY - dragShapePoint.y;
+            newPosition.x = x - dragShapePoint.x;
+            newPosition.y = y - dragShapePoint.y;
             break;
 
           case "left":
             newPosition.x = Math.min(
-              e.clientX - dragShapePoint.x,
+              x - dragShapePoint.x,
               initialShapeState.position.x + initialShapeState.size.x
             );
             newSize.x = initialShapeState.size.x - deltaX;
@@ -93,7 +118,7 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
 
           case "top":
             newPosition.y = Math.min(
-              e.clientY - dragShapePoint.y,
+              y - dragShapePoint.y,
               initialShapeState.position.y + initialShapeState.size.y
             );
             newSize.y = initialShapeState.size.y - deltaY;
@@ -105,11 +130,11 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
 
           case "top-left":
             newPosition.x = Math.min(
-              e.clientX - dragShapePoint.x,
+              x - dragShapePoint.x,
               initialShapeState.position.x + initialShapeState.size.x
             );
             newPosition.y = Math.min(
-              e.clientY - dragShapePoint.y,
+              y - dragShapePoint.y,
               initialShapeState.position.y + initialShapeState.size.y
             );
             newSize.x = initialShapeState.size.x - deltaX;
@@ -118,7 +143,7 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
 
           case "top-right":
             newPosition.y = Math.min(
-              e.clientY - dragShapePoint.y,
+              y - dragShapePoint.y,
               initialShapeState.position.y + initialShapeState.size.y
             );
             newSize.x = initialShapeState.size.x + deltaX;
@@ -127,7 +152,7 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
 
           case "bottom-left":
             newPosition.x = Math.min(
-              e.clientX - dragShapePoint.x,
+              x - dragShapePoint.x,
               initialShapeState.position.x + initialShapeState.size.x
             );
             newSize.x = initialShapeState.size.x - deltaX;
@@ -240,7 +265,7 @@ const BorderBox = ({ shape, updateShape, selectShape, isSelected }) => {
     />
   );
 
-  let borderMargin = shape.borderWidth ? -(shape.borderWidth + 2) : -2;
+  let borderMargin = shape.border ? -(shape.border.width + 2) : -2;
   return (
     <div
       onMouseDown={(e) => handleMouseDown(e, "center")}
