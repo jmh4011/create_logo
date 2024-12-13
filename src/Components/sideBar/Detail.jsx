@@ -1,105 +1,146 @@
-import React, { useState } from "react";
-import useCanvas from "../../features/canvas/useCanvas";
+import React, { useState, useCallback, useMemo } from "react";
 import { RgbaStringColorPicker } from "react-colorful";
+import useCanvas from "../../features/canvas/useCanvas";
 
-const Detail = () => {
-  const { shapes, selectedShapeId, updateShape } = useCanvas();
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-
-  const shape = shapes[selectedShapeId];
-
-  const handleChange = (label, value) => {
-    updateShape(selectedShapeId, { [label]: value });
-  };
-
-  const InputButton = ({ children, label }) => {
-    const [isOpen, setIsOpen] = useState(false);
-
-    return (
-      <div className="overflow-x-hidden">
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
+const InputButton = React.memo(({ label, isOpen, onToggle, children }) => {
+  return (
+    <div className="overflow-x-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full flex justify-between items-center p-2 bg-gray-800 text-white rounded"
+      >
+        <span className="text-xl font-medium">{label}</span>
+        <span
+          className={`transform transition-transform ${
+            isOpen ? "rotate-180" : ""
+          }`}
         >
-          <span className="text-xl font-medium">{label}</span>
-          <span
-            className={`transform transition-transform ${
-              isOpen ? "rotate-180" : ""
-            }`}
-          >
-            ▼
-          </span>
-        </button>
-        {isOpen && <div className="my-2">{children}</div>}
-      </div>
-    );
+          ▼
+        </span>
+      </button>
+      {isOpen && <div className="my-2">{children}</div>}
+    </div>
+  );
+});
+
+// InputField 컴포넌트
+const InputField = ({
+  label,
+  type = "text",
+  value,
+  onChange,
+  step,
+  min,
+  max,
+  onFocusChange,
+}) => {
+  const handleFocus = () => {
+    onFocusChange(true);
   };
 
-  const InputField = ({
-    label,
-    type = "text",
-    value,
-    onChange,
-    step,
-    min,
-    max,
-  }) => (
+  const handleBlur = () => {
+    onFocusChange(false);
+  };
+
+  return (
     <div>
       {label}:
       <input
         type={type}
-        value={value}
+        defaultValue={value}
         onChange={(e) => onChange(e.target.value)}
         step={step}
         min={min}
         max={max}
-        className="w-full p-1 border rounded"
+        className="w-full p-1 border rounded bg-gray-800 text-white"
+        onFocus={handleFocus}
+        onBlur={handleBlur}
       />
     </div>
   );
+};
+const Detail = () => {
+  const { shapes, selectedShapeId, updateShape } = useCanvas();
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [openStates, setOpenStates] = useState({});
+  const [isInputFocused, setIsInputFocused] = useState(false);
 
-  const InputField2D = ({ label }) => {
+  const shapeWhenFocused = useMemo(() => {
+    return shapes[selectedShapeId];
+  }, [selectedShapeId, isInputFocused]);
+
+  const shapeWhenNotFocused = useMemo(() => {
+    return shapes[selectedShapeId];
+  }, [selectedShapeId, shapes, isInputFocused]);
+
+  const shape = isInputFocused ? shapeWhenFocused : shapeWhenNotFocused;
+
+  console.log(shape.position);
+
+  const handleChange = useCallback(
+    (label, value) => {
+      updateShape(selectedShapeId, { [label]: value });
+    },
+    [selectedShapeId, updateShape]
+  );
+
+  const toggleOpen = useCallback((label) => {
+    setOpenStates((prev) => ({ ...prev, [label]: !prev[label] }));
+  }, []);
+
+  const InputField2D = React.memo(({ label }) => {
     const value = shape[label];
     return (
-      <InputButton label={`${label} (${value.x}, ${value.y})`}>
+      <InputButton
+        label={`${label} (${value.x}, ${value.y})`}
+        isOpen={!!openStates[label]}
+        onToggle={() => toggleOpen(label)}
+      >
         <InputField
           label="X"
           type="number"
           value={value.x}
           onChange={(val) =>
-            handleChange(label, { x: parseInt(val), y: value.y })
+            handleChange(label, { x: parseInt(val, 10), y: value.y })
           }
+          onFocusChange={setIsInputFocused}
         />
         <InputField
           label="Y"
           type="number"
           value={value.y}
           onChange={(val) =>
-            handleChange(label, { x: value.x, y: parseInt(val) })
+            handleChange(label, { x: value.x, y: parseInt(val, 10) })
           }
+          onFocusChange={setIsInputFocused}
         />
       </InputButton>
     );
-  };
+  });
 
-  const InputFieldColor = ({ label }) => {
+  const InputFieldColor = React.memo(({ label }) => {
     const defaultColor = { r: 255, g: 255, b: 255, a: 1 };
     const color = shape[label] || defaultColor;
 
-    const handleColorUpdate = (key, value) => {
-      const updatedColor = {
-        ...color,
-        [key]:
-          key === "a"
-            ? Math.min(1, Math.max(0, parseFloat(value)))
-            : Math.min(255, Math.max(0, parseInt(value))),
-      };
-      handleChange(label, updatedColor);
-    };
+    const handleColorUpdate = useCallback(
+      (key, value) => {
+        const updatedColor = {
+          ...color,
+          [key]:
+            key === "a"
+              ? Math.min(1, Math.max(0, parseFloat(value)))
+              : Math.min(255, Math.max(0, parseInt(value, 10))),
+        };
+        handleChange(label, updatedColor);
+      },
+      [color, handleChange, label]
+    );
 
     return (
       <InputButton
         label={`${label} rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`}
+        isOpen={!!openStates[label]}
+        onToggle={() => toggleOpen(label)}
       >
         <div className="mb-2">
           <RgbaStringColorPicker
@@ -111,9 +152,9 @@ const Detail = () => {
               if (match) {
                 const [_, r, g, b, a] = match;
                 handleChange(label, {
-                  r: parseInt(r),
-                  g: parseInt(g),
-                  b: parseInt(b),
+                  r: parseInt(r, 10),
+                  g: parseInt(g, 10),
+                  b: parseInt(b, 10),
                   a: parseFloat(a || 1),
                 });
               }
@@ -130,65 +171,14 @@ const Detail = () => {
             step={key === "a" ? 0.01 : 1}
             min={key === "a" ? 0 : 0}
             max={key === "a" ? 1 : 255}
+            onFocusChange={setIsInputFocused}
           />
         ))}
       </InputButton>
     );
-  };
+  });
 
-  const InputFieldBorder = ({ label }) => {
-    const defaultBorder = {
-      width: 2,
-      style: "solid",
-      color: { r: 0, g: 0, b: 0, a: 1 },
-    };
-    const border = shape[label] || defaultBorder;
-
-    return (
-      <InputButton
-        label={`${label} (width: ${border.width}, style: ${border.style})`}
-      >
-        <InputField
-          label="Width"
-          type="number"
-          value={border.width}
-          onChange={(val) =>
-            handleChange(label, { ...border, width: parseInt(val) })
-          }
-        />
-        <div className="mt-2">
-          Border Style:
-          <select
-            value={border.style}
-            onChange={(e) =>
-              handleChange(label, { ...border, style: e.target.value })
-            }
-            className="w-full p-1 border rounded"
-          >
-            {[
-              "solid",
-              "dotted",
-              "dashed",
-              "double",
-              "groove",
-              "ridge",
-              "inset",
-              "outset",
-              "none",
-              "hidden",
-            ].map((style) => (
-              <option key={style} value={style}>
-                {style.charAt(0).toUpperCase() + style.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
-        <InputFieldColor label={`${label}.color`} />
-      </InputButton>
-    );
-  };
-
-  const renderFieldsByShapeType = () => {
+  const renderFieldsByShapeType = useCallback(() => {
     if (!shape) return null;
 
     switch (shape.type) {
@@ -199,7 +189,6 @@ const Detail = () => {
             <InputField2D label="position" />
             <InputField2D label="size" />
             <InputFieldColor label="color" />
-            <InputFieldBorder label="border" />
           </>
         );
 
@@ -213,7 +202,8 @@ const Detail = () => {
               label="Thickness"
               type="number"
               value={shape.thickness}
-              onChange={(val) => handleChange("thickness", parseInt(val))}
+              onChange={(val) => handleChange("thickness", parseInt(val, 10))}
+              onFocusChange={setIsInputFocused}
             />
           </>
         );
@@ -227,13 +217,15 @@ const Detail = () => {
               label="Font Size"
               type="number"
               value={shape.fontSize}
-              onChange={(val) => handleChange("fontSize", parseInt(val))}
+              onChange={(val) => handleChange("fontSize", parseInt(val, 10))}
+              onFocusChange={setIsInputFocused}
             />
             <InputField
               label="Text"
               type="text"
               value={shape.text}
               onChange={(val) => handleChange("text", val)}
+              onFocusChange={setIsInputFocused}
             />
           </>
         );
@@ -243,7 +235,7 @@ const Detail = () => {
           <>
             <InputField2D label="position" />
             <InputField2D label="size" />
-            <InputFieldColor label="iconColor" />
+            <InputFieldColor label="color" />
             <InputFieldColor label="backgroundColor" />
           </>
         );
@@ -252,7 +244,7 @@ const Detail = () => {
         console.warn(`Unknown shape type: ${shape.type}`);
         return null;
     }
-  };
+  }, [shape, handleChange, openStates, toggleOpen, isInputFocused]);
 
   return (
     <div className="w-full px-4">
@@ -277,5 +269,4 @@ const Detail = () => {
     </div>
   );
 };
-
 export default Detail;

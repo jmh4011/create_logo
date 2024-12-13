@@ -99,19 +99,19 @@ const useCanvas = () => {
     (id, properties) => {
       const normalizedProperties = { ...properties };
 
-      if (normalizedProperties.position) {
+      if (normalizedProperties.position && normalizedProperties.size) {
         normalizedProperties.position = {
           x: Math.max(
             Math.min(
               normalizedProperties.position.x,
-              100 - normalizedProperties.size?.x
+              100 - normalizedProperties.size.x
             ),
             0
           ),
           y: Math.max(
             Math.min(
               normalizedProperties.position.y,
-              100 - normalizedProperties.size?.y
+              100 - normalizedProperties.size.y
             ),
             0
           ),
